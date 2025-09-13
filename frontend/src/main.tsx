@@ -1,11 +1,13 @@
-import React from "react"
-import ReactDOM from "react-dom/client"
-import App from "./App"
-import "./index.css"
-import 'leaflet/dist/leaflet.css'
+import React from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import Layout from "./components/Layout";
+import App from "./App";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <Layout>
+      <App />
+    </Layout>
   </React.StrictMode>
-)
+);

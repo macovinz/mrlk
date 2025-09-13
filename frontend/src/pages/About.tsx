@@ -1,291 +1,164 @@
-// src/pages/About.tsx
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  Sailboat, Trophy, Users, GraduationCap, Anchor, Globe2, HeartHandshake, Compass,
-} from 'lucide-react'
-import NewsletterSignup from '@/components/Newsletter'
+import { useEffect, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Lenis from "@studio-freight/lenis";
 
-export default function AboutPage() {
+const Silhouette = ({ className = "w-40 h-40" }: { className?: string }) => (
+  <svg viewBox="0 0 128 128" className={className} aria-hidden>
+    <defs>
+      <linearGradient id="sil-blue" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#2468CE" />
+        <stop offset="100%" stopColor="#0B3C5D" />
+      </linearGradient>
+    </defs>
+    <path
+      d="M64 10c14 0 26 12 26 26s-12 26-26 26S38 50 38 36 50 10 64 10Zm0 54c23 0 42 19 42 42v12H22v-12c0-23 19-42 42-42Z"
+      fill="url(#sil-blue)"
+    />
+  </svg>
+);
+
+const Sun = () => {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [0, -160]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
   return (
-    <main className="pb-20">
-      {/* HERO (Ocean style) */}
-      <section className="relative bg-ink text-white">
-        <div className="container py-12 md:py-16">
-          <div className="max-w-3xl">
-            <h1 className="section-title text-white uppercase">About the Philippine Sailing Circuit</h1>
-            <span className="mt-3 block h-1 w-20 bg-brand-yellow" />
-            <p className="mt-4 text-sm md:text-base text-white/85">
-              We champion grassroots to grand prix sailing across the archipelago—connecting clubs,
-              sailors, and events to grow the sport with world-class standards and Filipino grit.
-            </p>
+    <motion.div style={{ y, scale }} className="pointer-events-none absolute -top-24 right-6 h-64 w-64 rounded-full">
+      <div className="h-full w-full rounded-full bg-gradient-to-br from-[#FFB067] via-[#FF6B5A] to-[#6D5BD0] opacity-70 blur-2xl" />
+    </motion.div>
+  );
+};
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              <Badge className="text-[11px] font-black uppercase tracking-wider bg-brand-yellow text-ink">National Network</Badge>
-              <Badge variant="outline" className="text-[11px] uppercase tracking-wider border-white/25 text-white/90">Volunteer-Led</Badge>
-              <Badge variant="outline" className="text-[11px] uppercase tracking-wider border-white/25 text-white/90">Inclusive</Badge>
-            </div>
+const Section = ({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) => (
+  <section id={id} className={`relative mx-auto max-w-6xl px-6 md:px-8 ${className}`}>{children}</section>
+);
 
-            <div className="mt-6 flex gap-3">
-              <Button asChild>
-                <a href="/events">Explore Events</a>
-              </Button>
-              <Button variant="outline" asChild>
-                <a href="/crew/submit">Join as Crew / Owner</a>
-              </Button>
-            </div>
+export default function About() {
+  const lenisRef = useRef<Lenis | null>(null);
+
+  useEffect(() => {
+    document.title = "For Missy — under blue sunsets";
+
+    lenisRef.current = new Lenis({
+      duration: 1.1,
+      easing: (t: number) => 1 - Math.pow(1 - t, 2),
+      smoothWheel: true,
+    });
+
+    function raf(time: number) {
+      lenisRef.current?.raf(time);
+      requestAnimationFrame(raf);
+    }
+    const rafId = requestAnimationFrame(raf);
+    return () => cancelAnimationFrame(rafId);
+  }, []);
+
+  return (
+    <main className="relative min-h-screen scroll-smooth bg-gradient-to-b from-[#091485] via-[#1E3F73] to-[#0a1120] text-blue-50">
+      <div className="pointer-events-none fixed inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.8)_1px,transparent_1px)", backgroundSize: "3px 3px" }} />
+
+      {/* HERO */}
+      <header className="relative overflow-hidden">
+        <Sun />
+        <Section id="hero" className="pt-28 pb-24 md:pt-36 md:pb-40">
+          <div className="grid items-center gap-10 md:grid-cols-[1fr,0.8fr]">
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+              <p className="mb-3 text-sm uppercase tracking-[0.2em] text-blue-200/80">A birthday story</p>
+              <h1 className="mb-4 text-pretty text-4xl font-bold leading-tight md:text-6xl">
+                For Missy
+                <span className="block text-blue-200">under blue sunsets</span>
+              </h1>
+              <p className="mb-6 max-w-xl text-lg text-blue-100/90">
+                We met years ago, drifted apart, and somehow the tides of life carried us back to one another. Since August, it has felt like a rediscovery of something timeless — a bond rooted in kindness, depth, and a spark that never left. This page is my love letter to you: to your light, your gifts, and the way you inspire me to be better every day.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a href="#pillars" className="rounded-full bg-blue-500/20 px-5 py-2 text-blue-100 backdrop-blur transition hover:bg-blue-500/30">Start</a>
+                <a href="#listen" className="rounded-full border border-blue-300/30 px-5 py-2 text-blue-100 transition hover:border-blue-300/50">Listen</a>
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.15 }} className="flex flex-wrap items-center justify-center gap-6">
+              <Silhouette className="h-24 w-24 rotate-3 md:h-32 md:w-32" />
+              <Silhouette className="h-20 w-20 -rotate-6 opacity-80 md:h-28 md:w-28" />
+              <Silhouette className="h-24 w-24 translate-x-2 opacity-70 md:h-32 md:w-32" />
+            </motion.div>
           </div>
-        </div>
-        <span className="absolute bottom-0 left-0 right-0 block h-1 bg-brand-yellow" />
-      </section>
+        </Section>
+      </header>
 
-      {/* QUICK STATS */}
-      <section className="container mt-10">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard icon={<Sailboat className="h-5 w-5" />} label="Active Clubs" value="35+" />
-          <StatCard icon={<Trophy className="h-5 w-5" />} label="Annual Regattas" value="50+" />
-          <StatCard icon={<Users className="h-5 w-5" />} label="Registered Sailors" value="1,500+" />
-          <StatCard icon={<GraduationCap className="h-5 w-5" />} label="Training Programs" value="Nationwide" />
-        </div>
-      </section>
+      {/* SECTION: Her Strength */}
+      <Section id="strength" className="mb-28 md:mb-40">
+        <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-6 text-center text-3xl font-semibold md:text-5xl">
+          Strength in Service
+        </motion.h2>
+        <p className="mx-auto max-w-3xl text-center text-lg text-blue-100/90">
+          You carried honor in the United States Air Force, serving in the medical field — a life dedicated to care, precision, and discipline. That strength isn’t only in your record, but in the way you face life’s challenges with resilience and courage.
+        </p>
+      </Section>
 
-      {/* MISSION / VISION */}
-      <section className="container mt-12 grid gap-8 lg:grid-cols-2">
-        <Panel
-          title="Our Mission"
-          icon={<Anchor className="h-5 w-5" />}
-          body={
-            <p className="text-ink-90">
-              To develop Philippine sailing through safe, fair, and exciting competition; enable pathways
-              from youth to elite; and promote coastal stewardship through every race we run.
+      {/* SECTION: Her Talents */}
+      <Section id="talents" className="mb-28 md:mb-40">
+        <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-6 text-center text-3xl font-semibold md:text-5xl">
+          A World of Talents
+        </motion.h2>
+        <p className="mx-auto max-w-3xl text-center text-lg text-blue-100/90">
+          From cooking that inspired thousands online, to inspiring voices in communities and gaming spaces — your creativity shines in so many forms. You don’t just create meals or moments; you create joy, connection, and belonging.
+        </p>
+      </Section>
+
+      {/* SECTION: Family and Care */}
+      <Section id="family" className="mb-28 md:mb-40">
+        <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-6 text-center text-3xl font-semibold md:text-5xl">
+          Heart of Family
+        </motion.h2>
+        <p className="mx-auto max-w-3xl text-center text-lg text-blue-100/90">
+          At your core, you are family-oriented. The way you care for your loved ones shows me the depth of your loyalty, your devotion, and your love. You remind me what it means to build a life around people, not things.
+        </p>
+      </Section>
+
+      {/* SECTION: Our Connection */}
+      <Section id="connection" className="mb-28 md:mb-40">
+        <motion.h2 initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-6 text-center text-3xl font-semibold md:text-5xl">
+          Rediscovered Light
+        </motion.h2>
+        <p className="mx-auto max-w-3xl text-center text-lg text-blue-100/90">
+          Since 2021, I carried the memory of you. This year, I searched and found you again — and the moment we reconnected, it felt as if no time had passed. You’ve always been the one whose presence feels like home, like sunset light spilling across the horizon.
+        </p>
+      </Section>
+
+      {/* SECTION: A Promise */}
+      <Section id="promise" className="mb-28 md:mb-40">
+        <div className="grid items-center gap-8 md:grid-cols-2">
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="mb-3 text-3xl font-semibold md:text-5xl">A Gentle Promise</h2>
+            <p className="text-balance text-lg text-blue-100/90">
+              To me, you are a queen — deserving of love, patience, and honor. This space will always reflect that: a place where your story, your light, and your future creations can live. Whatever paths we walk, I carry deep gratitude for you, always.
             </p>
-          }
-        />
-        <Panel
-          title="Our Vision"
-          icon={<Globe2 className="h-5 w-5" />}
-          body={
-            <p className="text-ink-90">
-              A vibrant, connected sailing nation—recognized across Asia for talent, race management, and
-              spectacular events in our world-class waters.
-            </p>
-          }
-        />
-      </section>
-
-      {/* WHAT WE DO */}
-      <section className="container mt-12">
-        <h2 className="section-title text-ink">What We Do</h2>
-        <span className="block h-1 w-20 bg-brand-yellow mb-6" />
-        <div className="grid gap-6 md:grid-cols-3">
-          <ServiceCard
-            icon={<Compass className="h-6 w-6" />}
-            title="Race Management"
-            points={[
-              'Nationwide race calendar & NOR templates',
-              'America’s Cup–inspired presentation & results',
-              'Safety, fairness, and fun at the core',
-            ]}
-          />
-          <ServiceCard
-            icon={<GraduationCap className="h-6 w-6" />}
-            title="Pathways & Training"
-            points={[
-              'Youth & grassroots support',
-              'Coaching clinics and seminars',
-              'Crew/owner matching tools',
-            ]}
-          />
-          <ServiceCard
-            icon={<HeartHandshake className="h-6 w-6" />}
-            title="Partnerships & Promotion"
-            points={[
-              'Club directory & venue guides',
-              'Sponsor integration & media',
-              'Sustainability initiatives',
-            ]}
-          />
-        </div>
-      </section>
-
-      {/* TIMELINE */}
-      <section className="container mt-12">
-        <h2 className="section-title text-ink">Milestones</h2>
-        <span className="block h-1 w-20 bg-brand-yellow mb-6" />
-        <ol className="relative border-l border-border pl-6 space-y-6">
-          {[
-            { year: '2018', title: 'Circuit Launch', text: 'First consolidated national calendar goes live.' },
-            { year: '2020', title: 'Digital Results', text: 'Modern scoring UI and live updates introduced.' },
-            { year: '2023', title: 'Youth Expansion', text: 'Scholarships and junior series across regions.' },
-            { year: '2025', title: 'Sustainability Push', text: 'Green regatta checklist adopted nationwide.' },
-          ].map((t, i) => (
-            <li key={i} className="relative">
-              <span className="absolute -left-[9px] top-1.5 h-2.5 w-2.5 rounded-full bg-brand-yellow ring-2 ring-white" />
-              <div className="text-xs font-bold uppercase tracking-wide text-ink/70">{t.year}</div>
-              <div className="font-heading font-black text-ink">{t.title}</div>
-              <p className="text-sm text-ink-80">{t.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      {/* TEAM */}
-      <section className="container mt-12">
-        <h2 className="section-title text-ink">Leadership & Volunteers</h2>
-        <span className="block h-1 w-20 bg-brand-yellow mb-6" />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {TEAM.map((m) => (
-            <TeamCard key={m.name} {...m} />
-          ))}
-        </div>
-      </section>
-
-      {/* PARTNERS */}
-      <section className="container mt-12">
-        <h2 className="section-title text-ink">Partner Clubs & Organizations</h2>
-        <span className="block h-1 w-20 bg-brand-yellow mb-6" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="aspect-[3/2] rounded-md border border-border bg-white grid place-items-center">
-              <span className="text-xs text-ink/60">Logo {i + 1}</span>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="rounded-2xl border border-blue-300/20 bg-white/5 p-6">
+            <p className="text-blue-100/90">Words for you:</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {["queen","steadfast","radiant","caring","resilient","sunset-soul"].map((w) => (
+                <span key={w} className="rounded-full bg-blue-500/20 px-3 py-1 text-sm text-blue-100">{w}</span>
+              ))}
             </div>
-          ))}
+          </motion.div>
         </div>
-      </section>
+      </Section>
 
-      {/* CTA ROWS */}
-      <section className="container mt-12 grid gap-6 lg:grid-cols-2">
-        <CTA
-          title="Host a Regatta"
-          body="Clubs and LGUs: bring a sanctioned event to your waters. We’ll guide you from NOR to prize-giving."
-          primary={{ href: '/contact', label: 'Contact Us' }}
-          secondary={{ href: '/resources', label: 'View Resources' }}
-        />
-        <CTA
-          title="Join the Community"
-          body="Skippers, crew, volunteers—be part of the circuit. Find boats, teams, and training."
-          primary={{ href: '/crew/submit', label: 'Submit Listing' }}
-          secondary={{ href: '/crew', label: 'Browse Directory' }}
-        />
-      </section>
+      {/* LISTEN placeholder */}
+      <Section id="listen" className="mb-28 md:mb-40">
+        <div className="rounded-2xl border border-blue-300/20 bg-white/5 p-6">
+          <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-blue-600/30 via-purple-600/30 to-rose-500/30" />
+          <p className="mt-3 text-blue-100/90">Embed a podcast or audio message here in the future. Placeholder only.</p>
+        </div>
+      </Section>
 
-      {/* NEWSLETTER */}
-      <section className="container mt-16">
-        <NewsletterSignup />
-      </section>
+      <footer className="mx-auto max-w-6xl px-6 pb-16 text-sm text-blue-200/70 md:px-8">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <p>Built with love under blue sunsets. Silhouettes, not faces. 💙</p>
+          <p>Sunset today: your favorite hour.</p>
+        </div>
+      </footer>
     </main>
-  )
-}
-
-/* ---------- Small, reusable UI bits ---------- */
-
-function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-border bg-white p-5">
-      <div className="flex items-center gap-2 text-ink">
-        <div className="inline-flex h-8 w-8 items-center justify-center rounded bg-ink/5 text-ink">
-          {icon}
-        </div>
-        <div className="text-xs uppercase tracking-wide text-ink/70">{label}</div>
-      </div>
-      <div className="mt-2 text-2xl font-heading font-black text-ink">{value}</div>
-    </div>
-  )
-}
-
-function Panel({ title, icon, body }: { title: string; icon: React.ReactNode; body: React.ReactNode }) {
-  return (
-    <div className="rounded-md border border-border bg-white p-6">
-      <div className="mb-3 flex items-center gap-2">
-        <div className="inline-flex h-7 w-7 items-center justify-center rounded bg-brand-yellow text-ink">
-          {icon}
-        </div>
-        <h3 className="font-heading font-bold text-xl text-ink">{title}</h3>
-      </div>
-      <div className="text-sm">{body}</div>
-    </div>
-  )
-}
-
-function ServiceCard({ icon, title, points }: { icon: React.ReactNode; title: string; points: string[] }) {
-  return (
-    <div className="rounded-md border border-border bg-white p-6 flex flex-col">
-      <div className="flex items-center gap-2 text-ink">
-        <div className="inline-flex h-8 w-8 items-center justify-center rounded bg-ink/5">
-          {icon}
-        </div>
-        <h3 className="font-heading font-bold text-lg">{title}</h3>
-      </div>
-      <ul className="mt-3 space-y-2 text-sm list-disc pl-5">
-        {points.map((p, i) => <li key={i} className="text-ink-90">{p}</li>)}
-      </ul>
-      <span className="mt-4 block h-1 w-full bg-brand-yellow/60 rounded" />
-    </div>
-  )
-}
-
-type TeamMember = {
-  name: string
-  role: string
-  club?: string
-  avatar?: string
-}
-const TEAM: TeamMember[] = [
-  { name: 'Alex Santos', role: 'Race Director', club: 'Subic Bay', avatar: '' },
-  { name: 'Maya Dizon', role: 'Youth Pathways Lead', club: 'Tali Beach', avatar: '' },
-  { name: 'J.P. Lim', role: 'Chief Measurer', club: 'Puerto Galera', avatar: '' },
-  { name: 'Rhea Tan', role: 'Partnerships', club: 'Manila Bay', avatar: '' },
-  { name: 'Ken Navarro', role: 'Results & Tech', club: 'Cebu', avatar: '' },
-  { name: 'Leah Cruz', role: 'Sustainability', club: 'Boracay', avatar: '' },
-]
-
-function TeamCard({ name, role, club, avatar }: TeamMember) {
-  return (
-    <div className="rounded-md border border-border bg-white p-5 flex items-center gap-4">
-      <div className="h-14 w-14 rounded-full bg-ink/5 grid place-items-center text-ink font-heading font-black">
-        {avatar ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={avatar} alt={name} className="h-full w-full rounded-full object-cover" />
-        ) : (
-          <span>{initials(name)}</span>
-        )}
-      </div>
-      <div className="min-w-0">
-        <div className="font-heading font-black text-ink truncate">{name}</div>
-        <div className="text-sm text-ink-80">{role}</div>
-        {club && <div className="text-[12px] uppercase tracking-wide text-ink/60">{club}</div>}
-      </div>
-    </div>
-  )
-}
-
-function CTA({
-  title, body, primary, secondary,
-}: {
-  title: string
-  body: string
-  primary: { href: string; label: string }
-  secondary?: { href: string; label: string }
-}) {
-  return (
-    <div className="rounded-md border border-border bg-white p-6 flex flex-col justify-between">
-      <div>
-        <h3 className="font-heading font-bold text-xl text-ink">{title}</h3>
-        <p className="mt-2 text-sm text-ink-90">{body}</p>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <Button asChild><a href={primary.href}>{primary.label}</a></Button>
-        {secondary && (
-          <Button variant="outline" asChild>
-            <a href={secondary.href}>{secondary.label}</a>
-          </Button>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function initials(name = '') {
-  const parts = name.trim().split(/\s+/)
-  return parts.slice(0, 2).map(p => p[0]).join('').toUpperCase()
+  );
 }
