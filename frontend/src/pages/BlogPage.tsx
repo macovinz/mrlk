@@ -1,236 +1,295 @@
-import { useEffect, useMemo, useState } from 'react'
-import { format } from 'date-fns'
-import { cn } from '@/lib/utils'
-import { ArrowRight } from 'lucide-react'
-import Newsletter from '@/components/Newsletter'
-import SubmitStory from '@/components/SubmitStory'
+// src/pages/BlogPage.tsx
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
-const API_BASE = import.meta.env.VITE_WORDPRESS_API_BASE
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;        // ISO or pretty
+  cover: string;       // image url
+  tags: string[];
+  readingTime: string; // "5 min"
+};
 
-type WPPost = {
-  id: number
-  slug: string
-  date: string
-  link: string
-  title: { rendered: string }
-  excerpt?: { rendered?: string }
-  _embedded?: {
-    'wp:featuredmedia'?: { source_url?: string; alt_text?: string }[]
-  }
-}
+const POSTS: Post[] = [
+  {
+    slug: "gratitude-10-things",
+    title: "10 Tiny Things I’m Grateful For",
+    excerpt:
+      "Sunsets over rice, the first sip of coffee, and that small laugh I keep replaying in my head.",
+    date: "2025-01-06",
+    cover:
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop",
+    tags: ["reflection", "gratitude"],
+    readingTime: "4 min",
+  },
+  {
+    slug: "kitchen-notes-crispy-garlic",
+    title: "Kitchen Notes: Crispy Garlic Everything",
+    excerpt:
+      "My weeknight upgrade: a jar of golden, crunchy garlic that goes on almost… everything.",
+    date: "2024-12-29",
+    cover:
+      "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop",
+    tags: ["cooking", "pantry"],
+    readingTime: "3 min",
+  },
+  {
+    slug: "quiet-sunday-reset",
+    title: "A Quiet Sunday Reset",
+    excerpt:
+      "Laundry tumbling in the background, slow music, and a short list that actually gets done.",
+    date: "2024-12-15",
+    cover:
+      "https://images.unsplash.com/photo-1519681391401-22f1f72f2f01?q=80&w=1200&auto=format&fit=crop",
+    tags: ["routine", "calm"],
+    readingTime: "5 min",
+  },
+  {
+    slug: "sunset-playlist-winter",
+    title: "Sunset Playlist (Winter Edition)",
+    excerpt:
+      "Warm synths, gentle drums, and a little brass. For golden-hour chopping + stirring.",
+    date: "2024-12-03",
+    cover:
+      "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?q=80&w=1200&auto=format&fit=crop",
+    tags: ["music", "sunset"],
+    readingTime: "6 min",
+  },
+  {
+    slug: "notes-on-boldness",
+    title: "Notes on Being Bold (Softly)",
+    excerpt:
+      "You can be gentle and still take up space. Some reminders I’m trying on this month.",
+    date: "2024-11-22",
+    cover:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop",
+    tags: ["mindset", "growth"],
+    readingTime: "4 min",
+  },
+  {
+    slug: "family-table-traditions",
+    title: "Family Table Traditions I Love",
+    excerpt:
+      "A bowl that’s always full, an extra seat just in case, and stories that season the rice.",
+    date: "2024-11-08",
+    cover:
+      "https://images.unsplash.com/photo-1514512364185-4c2b3a1a52a4?q=80&w=1200&auto=format&fit=crop",
+    tags: ["family", "food"],
+    readingTime: "5 min",
+  },
+];
 
-type WPCategory = { id: number; name: string; slug: string; count: number }
+const ALL_TAGS = Array.from(new Set(POSTS.flatMap((p) => p.tags))).sort();
 
-export default function NewsPage() {
-  const [posts, setPosts] = useState<WPPost[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const [cats, setCats] = useState<WPCategory[]>([])
-  const [activeCat, setActiveCat] = useState<number | 'all'>('all')
-
-  // fetch categories for pills
+export default function BlogPage() {
   useEffect(() => {
-    ;(async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE}/categories?per_page=100&orderby=count&order=desc&_fields=id,name,slug,count`
-        )
-        const data = (await res.json()) as WPCategory[]
-        // filter out zero-count/uncategorized if you like
-        const filtered = data.filter(c => c.count > 0 && c.slug !== 'uncategorized')
-        setCats(filtered)
-      } catch (e) {
-        // non-blocking if categories fail
-        console.warn('Failed to load categories', e)
-      }
-    })()
-  }, [])
+    document.title = "Sunset Pantry — Notes & Little Recipes for Living";
+  }, []);
 
-  // fetch posts (filtered by active category)
-  useEffect(() => {
-    ;(async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const base = `${API_BASE}/posts?per_page=13&_embed`
-        const url =
-          activeCat === 'all' ? base : `${base}&categories=${activeCat}`
-        const res = await fetch(url)
-        if (!res.ok) throw new Error('Failed to load posts')
-        const data = (await res.json()) as WPPost[]
-        setPosts(data)
-      } catch (e: any) {
-        setError(e?.message ?? 'Something went wrong')
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [activeCat])
+  const [query, setQuery] = useState("");
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
-  const featured = posts[0]
-  const latest = useMemo(() => posts.slice(1), [posts])
+  const featured = POSTS[0];
+  const filtered = useMemo(() => {
+    return POSTS.slice(1).filter((p) => {
+      const matchesTag = activeTag ? p.tags.includes(activeTag) : true;
+      const matchesQuery =
+        !query ||
+        p.title.toLowerCase().includes(query.toLowerCase()) ||
+        p.excerpt.toLowerCase().includes(query.toLowerCase()) ||
+        p.tags.some((t) => t.toLowerCase().includes(query.toLowerCase()));
+      return matchesTag && matchesQuery;
+    });
+  }, [query, activeTag]);
 
   return (
-    <main className="pb-20">
-            {/* Page header */}
-      <section className="bg-ink text-white">
-        <div className="container py-10 md:py-12">
-          <h1 className="uppercase section-title text-white">Latest News</h1>
-          <span className="mt-3 block h-1 w-20 bg-brand-yellow" />
-        </div>
-      </section>
-      <section className="container mt-8">
+    <main id="blog" className="relative min-h-screen bg-transparent text-white">
+      {/* Soft gradient backdrop */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 opacity-[0.9]"
+        style={{
+          background:
+            "radial-gradient(120% 80% at 50% 120%, #ef6a2f 0%, #ff934d 25%, #ffd2a8 45%, #cfcbe2 70%, #8ea1c7 100%)",
+        }}
+      />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,.18),transparent_35%)]" />
 
-        {/* Category pills */}
-        <div className="mt-6 -mx-1 overflow-x-auto">
-          <div className="flex items-center gap-2 px-1 pb-1">
-            <Pill
-              label="All"
-              active={activeCat === 'all'}
-              onClick={() => setActiveCat('all')}
+      <div className="mx-auto max-w-7xl px-6 pt-28 pb-20">
+        {/* Title & intro */}
+        <motion.header
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <p className="text-sm font-semibold tracking-widest text-white/85">
+            BLOG
+          </p>
+          <h1 className="mt-2 font-heading text-4xl sm:text-5xl md:text-6xl leading-[1.06] tracking-tight">
+            Sunset Pantry — Notes & Little Recipes for Living
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-white/90 font-body text-lg sm:text-xl">
+            Warm, simple posts—kitchen sparks, quiet routines, and sunset
+            reflections. A tiny corner for voice and memory.
+          </p>
+        </motion.header>
+
+        {/* Controls */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="relative">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search posts…"
+              className="w-72 rounded-full border border-white/20 bg-white/15 px-4 py-2.5 placeholder-white/70 outline-none backdrop-blur-md"
             />
-            {cats.map(c => (
-              <Pill
-                key={c.id}
-                label={c.name}
-                active={activeCat === c.id}
-                onClick={() => setActiveCat(c.id)}
-              />
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/70">
+              ⌕
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveTag(null)}
+              className={`rounded-full px-3 py-1 text-sm border backdrop-blur-md ${
+                activeTag === null
+                  ? "border-white/60 bg-white/25"
+                  : "border-white/25 bg-white/10 hover:bg-white/20"
+              }`}
+            >
+              All
+            </button>
+            {ALL_TAGS.map((t) => (
+              <button
+                key={t}
+                onClick={() => setActiveTag(t === activeTag ? null : t)}
+                className={`rounded-full px-3 py-1 text-sm border backdrop-blur-md ${
+                  activeTag === t
+                    ? "border-white/60 bg-white/25"
+                    : "border-white/25 bg-white/10 hover:bg-white/20"
+                }`}
+              >
+                {t}
+              </button>
             ))}
           </div>
         </div>
 
-        {/* Status */}
-        {loading && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
-        {error && <p className="mt-6 text-sm text-red-600">{error}</p>}
-
-        {/* Content (unchanged layout: Featured + grid) */}
-        {!loading && !error && posts.length > 0 && (
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
-            {/* Featured (same height as cards beside it on large screens) */}
-            <article className="lg:col-span-2">
-              <NewsCardBig post={featured} />
-            </article>
-
-            {/* Right-hand column shows the first three latest at same total height */}
-            <div className="grid content-start gap-6">
-              {latest.slice(0, 3).map(p => (
-                <NewsCard key={p.id} post={p} />
-              ))}
+        {/* Featured */}
+        <section className="mt-10 overflow-hidden rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="relative">
+              <img
+                src={featured.cover}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
             </div>
-
-            {/* Rest of the posts below, full width grid */}
-            {latest.slice(3).length > 0 && (
-              <div className="lg:col-span-3 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {latest.slice(3).map(p => (
-                  <NewsCard key={p.id} post={p} />
-                ))}
+            <div className="flex flex-col justify-center p-6 sm:p-8">
+              <span className="text-xs uppercase tracking-widest text-white/70 mb-1">
+                Featured
+              </span>
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl leading-tight">
+                {featured.title}
+              </h2>
+              <p className="mt-2 text-white/85">{featured.excerpt}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-white/80">
+                <span>{new Date(featured.date).toLocaleDateString()}</span>
+                <span aria-hidden>•</span>
+                <span>{featured.readingTime}</span>
+                <span aria-hidden>•</span>
+                <div className="flex flex-wrap gap-2">
+                  {featured.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-white/25 px-2 py-0.5"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
               </div>
-            )}
+              <div className="mt-6 flex gap-3">
+                <a
+                  className="rounded-full bg-white/20 px-5 py-2 backdrop-blur-md hover:bg-white/30"
+                  href={`/blog/${featured.slug}`}
+                >
+                  Read post
+                </a>
+                <a
+                  className="rounded-full border border-white/40 px-5 py-2 hover:bg-white/10"
+                  href={`/blog/${featured.slug}`}
+                >
+                  Save
+                </a>
+              </div>
+            </div>
           </div>
-        )}
-      </section>
+        </section>
 
-      {/* Keep these as separate rows/components per your spec */}
-      <section className="container mt-10">
-        <Newsletter />
-      </section>
-      <section className="container mt-10">
-        <SubmitStory />
-      </section>
+        {/* Grid */}
+        <section className="mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((p) => (
+              <article
+                key={p.slug}
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md"
+              >
+                <div className="relative">
+                  <img
+                    src={p.cover}
+                    alt=""
+                    className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
+                </div>
+                <div className="p-5">
+                  <p className="text-xs uppercase tracking-widest text-white/70">
+                    {new Date(p.date).toLocaleDateString()} • {p.readingTime}
+                  </p>
+                  <h3 className="mt-1 font-heading text-xl leading-snug">
+                    {p.title}
+                  </h3>
+                  <p className="mt-2 line-clamp-2 text-white/85">{p.excerpt}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {p.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-full border border-white/25 px-2 py-0.5 text-xs"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-4">
+                    <a
+                      className="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-md hover:bg-white/30"
+                      href={`/blog/${p.slug}`}
+                    >
+                      Read more
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Pagination stub */}
+          <div className="mt-10 flex items-center justify-center gap-3">
+            <button className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/10">
+              Newer
+            </button>
+            <button className="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-md hover:bg-white/30">
+              Older
+            </button>
+          </div>
+        </section>
+      </div>
     </main>
-  )
-}
-
-/* === UI bits === */
-
-function Pill({
-  label,
-  active,
-  onClick,
-}: {
-  label: string
-  active?: boolean
-  onClick?: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        'shrink-0 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition',
-        'focus:outline-none focus:ring-2 ring-brand-yellow',
-        active
-          ? 'bg-ink text-white border-ink'
-          : 'bg-white text-ink border-border hover:bg-muted'
-      )}
-    >
-      {label}
-    </button>
-  )
-}
-
-function NewsCard({ post }: { post: WPPost }) {
-  const img =
-    post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? '/fallback.jpg'
-  const alt = post._embedded?.['wp:featuredmedia']?.[0]?.alt_text ?? post.title?.rendered ?? ''
-  const date = post.date ? format(new Date(post.date), 'MMM d, yyyy') : ''
-  return (
-    <a
-      href={`/news/${post.slug}`}
-      className="group relative block overflow-hidden rounded-md ring-1 ring-foreground/10 bg-ink text-white"
-    >
-      <img
-        src={img}
-        alt={alt}
-        loading="lazy"
-        className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-4">
-        <time className="text-[11px] uppercase tracking-wider text-white/85">
-          {date}
-        </time>
-        <h3 className="mt-1 font-heading font-black leading-tight text-base md:text-lg line-clamp-2">
-          {post.title?.rendered}
-        </h3>
-        <div className="mt-2 flex items-center gap-1 text-sm text-white/90 opacity-0 translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0">
-          <span>Read article</span>
-          <ArrowRight className="h-4 w-4" />
-        </div>
-      </div>
-    </a>
-  )
-}
-
-function NewsCardBig({ post }: { post: WPPost }) {
-  const img =
-    post._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? '/fallback.jpg'
-  const alt = post._embedded?.['wp:featuredmedia']?.[0]?.alt_text ?? post.title?.rendered ?? ''
-  const date = post.date ? format(new Date(post.date), 'MMM d, yyyy') : ''
-  return (
-    <a
-      href={`/news/${post.slug}`}
-      className="group relative block overflow-hidden rounded-md ring-1 ring-foreground/10 bg-ink text-white h-full"
-    >
-      <img
-        src={img}
-        alt={alt}
-        className="h-[28rem] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-        <time className="text-[11px] uppercase tracking-wider text-white/85">
-          {date}
-        </time>
-        <h2 className="mt-1 text-2md md:text-3md font-heading font-black leading-tight line-clamp-2">
-          {post.title?.rendered}
-        </h2>
-        <p className="mt-2 hidden md:block text-sm text-white/90 line-clamp-3">
-          {/* If you prefer excerpts, you can show a cleaned one here */}
-        </p>
-      </div>
-    </a>
-  )
+  );
 }

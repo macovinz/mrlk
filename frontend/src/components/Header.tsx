@@ -6,16 +6,16 @@ export default function Header() {
         {/* subtle gradient & shadow for depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-[0.06] pointer-events-none" />
         <nav className="relative mx-auto max-w-7xl px-5 md:px-6 py-3.5 flex items-center justify-between text-white shadow-[rgba(0,0,0,0.6)]">
-          <a href="#hero" className="font-extrabold tracking-tight">
+          <a href="/" className="font-extrabold tracking-tight">
             <span className="font-bold text-blue-950"> MRLK's</span>
             <span> UNIVERSE</span>
           </a>
 
           <div className="flex items-center gap-5 text-sm">
-            <a className="hover:text-white/80 transition-colors" href="#talents">Story</a>
-            <a className="hover:text-white/80 transition-colors" href="#sunsets">Sunsets</a>
-            <a className="hover:text-white/80 transition-colors" href="#podcast">Podcast</a>
-            <a className="hover:text-white/80 transition-colors" href="#blog">Blog</a>
+            <a className="hover:text-white/80 transition-colors" href="/story">Story</a>
+            <a className="hover:text-white/80 transition-colors" href="/gift">Gift</a>
+            <a className="hover:text-white/80 transition-colors" href="/podcast">Podcast</a>
+            <a className="hover:text-white/80 transition-colors" href="/blog">Blog</a>
           </div>
         </nav>
       </div>

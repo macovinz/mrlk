@@ -20,8 +20,8 @@ const SLIDES: Slide[] = [
     title: "To the one who made me experience ‘Bliss’",
     desc:
       "Happy birthday, baby. I’m grateful for your existence and the time and attention you share with me. Like sunsets, you are endlessly beautiful — every day, a new shade. This site is for you.",
-    // we’ll use heroFlipBg instead of tailwind gradient here
-    heroFlipBg: true,
+    // keep gradient fallback (not used for slide 1 visual)
+    gradient: "from-[#FFE0B3] via-[#F39C77] to-[#7A6BB3]",
     image: "/wp-content/uploads/2025/09/missy.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "right",
@@ -31,7 +31,7 @@ const SLIDES: Slide[] = [
     desc:
       "You are an artist of many forms: in kitchens where recipes become memories, in communities where your words inspire, and in moments where your laughter becomes music. What I love most is not the applause, but the joy you bring to others. Letting me see those hidden, tender sides of you is already a gift — like the secret glow of the horizon after the sun has dipped below it, a rare and intimate radiance that feels like more than I deserve",
     gradient: "from-[#FFD1A3] via-[#F08A5D] to-[#5457A6]",
-    image: "/wp-content/uploads/2025/09/silhouette1.webp",
+    image: "/wp-content/uploads/2025/09/silhouette2.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "left",
   },
@@ -40,7 +40,7 @@ const SLIDES: Slide[] = [
     desc:
       "Your love for family is like the setting sun: steady, anchoring, and endlessly giving. You carry loyalty not as duty, but as devotion. In your care, people feel safe. In your presence, people feel at home. That is a rare gift, and it is why I see you not only as beautiful, but as someone who embodies what it means to be a queen. You don’t need a crown for that — only your pineapple bun, your smile, and the grace that is already yours.",
     gradient: "from-[#FFC8A5] via-[#E46E59] to-[#4C5CAB]",
-    image: "/wp-content/uploads/2025/09/silhouette1.webp",
+    image: "/wp-content/uploads/2025/09/silhouette5.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "right",
   },
@@ -49,7 +49,7 @@ const SLIDES: Slide[] = [
     desc:
       "Since 2021, a part of me never stopped remembering you. This year, after searching, I found you again — and from that first moment of reconnection, I felt bliss return. Being with you is like watching the sky shift from gold to deep indigo: grounding, breathtaking, and impossible to turn away from. I carry gratitude for every moment, and I will never stop treasuring the gift of your presence.",
     gradient: "from-[#FFBE88] via-[#E36D5B] to-[#6B4B8B]",
-    image: "/wp-content/uploads/2025/09/missy.webp",
+    image: "/wp-content/uploads/2025/09/silhouette1.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "left",
   },
@@ -58,7 +58,7 @@ const SLIDES: Slide[] = [
     desc:
       "To me, you are a queen. Not because of titles or thrones, but because of how you carry your heart: generous, resilient, and true. Even your simplest gestures — a late-night call, a quiet word, or letting me glimpse the real you — feel like treasures. My promise is simple: I will honor you, with or without labels, with or without crowns, because you are already the most radiant part of every horizon.",
     gradient: "from-[#FBF4D7] via-[#F9C49A] to-[#8C6EC4]",
-    image: "/wp-content/uploads/2025/09/sillouette1.webp",
+    image: "/wp-content/uploads/2025/09/missy.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "left",
   },
@@ -67,11 +67,14 @@ const SLIDES: Slide[] = [
     desc:
       "This can grow into your blog and podcast hub — publish what you love, in your own rhythm.",
     gradient: "from-[#FFF0DC] via-[#FFC6A1] to-[#7B6AC2]",
-    image: "/wp-content/uploads/2025/09/sillouette3.webp",
+    image: "/wp-content/uploads/2025/09/sillouette1.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "none",
   },
 ];
+
+const FLIPPED_HERO_BG =
+  "radial-gradient(120% 110% at 50% -10%, #ef6a2f 0%, #ff934d 25%, #ffd2a8 45%, #cfcbe2 70%, #8ea1c7 100%)";
 
 export default function GentleScroller() {
   const root = useRef<HTMLDivElement>(null);
@@ -141,10 +144,6 @@ export default function GentleScroller() {
 
     return () => { ScrollTrigger.getAll().forEach(t => t.kill()); };
   }, []);
-
-  // flipped hero gradient for slide 1 (vertical flip)
-  const FLIPPED_HERO_BG =
-    "radial-gradient(120% 80% at 50% -20%, #ef6a2f 0%, #ff934d 25%, #ffd2a8 45%, #cfcbe2 70%, #8ea1c7 100%)";
 
   return (
     <div ref={root} className="relative w-full">

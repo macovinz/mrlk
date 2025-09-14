@@ -7,33 +7,19 @@ const SUNSET_BG =
 
 export default function Hero() {
   return (
-    <section
-      id="hero"
-      className={`relative min-h-screen w-full overflow-hidden ${SUNSET_BG} text-white`}
-    >
-      {/* grain/noise overlay for warmth */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.18]"
-        style={{
-          backgroundImage: "radial-gradient(rgba(255,255,255,0.8)_1px,transparent_1px)",
-          backgroundSize: "3px 3px",
-          mixBlendMode: "soft-light",
-        }}
-      />
-
+    <section id="hero" className={`relative min-h-screen w-full overflow-hidden ${SUNSET_BG} text-white`}>
+      {/* grain */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.18]"
+           style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.8)_1px,transparent_1px)",
+                    backgroundSize: "3px 3px", mixBlendMode: "soft-light" }} />
       {/* low sun glow */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-20 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(255,183,77,0.9), rgba(255,107,90,0.65) 45%, rgba(109,91,208,0.35) 70%, transparent 75%)",
-        }}
-      />
+      <div aria-hidden className="pointer-events-none absolute -bottom-20 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl"
+           style={{ background:
+             "radial-gradient(circle at 50% 50%, rgba(255,183,77,0.9), rgba(255,107,90,0.65) 45%, rgba(109,91,208,0.35) 70%, transparent 75%)" }} />
 
-      {/* HERO CONTENT — centered */}
-      <div className="relative z-10 mx-auto max-w-3xl px-6 pt-40 pb-24 sm:pt-44 sm:pb-28 text-center">
+      {/* CENTERED CONTENT */}
+      <div className="relative z-10 mx-auto max-w-3xl px-6 min-h-screen flex items-center justify-center text-center">
+        <div>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -83,6 +69,7 @@ export default function Hero() {
           </a>
         </motion.div>
       </div>
+        </div>
 
       {/* Blue confetti appears on hero only */}
       <ConfettiOnScroll/>
