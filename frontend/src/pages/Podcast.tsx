@@ -1,15 +1,17 @@
 // src/pages/Podcast.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import BackgroundVideoStack from "@/components/BackgroundVideoStack";
+import { GENTLERAIN_BG } from "@/constants/gentlerain";
 
 type Episode = {
   id: string;
   title: string;
-  date: string;             // ISO or pretty date
-  duration: string;         // "28:42"
+  date: string;
+  duration: string;
   description: string;
-  cover: string;            // image url
-  audio: string;            // mp3 or m4a url
+  cover: string;
+  audio: string;
   tags?: string[];
 };
 
@@ -21,7 +23,8 @@ const EPISODES: Episode[] = [
     duration: "23:18",
     description:
       "A soft hello: vision, why audio-first, and how we’ll keep it cozy and private-friendly.",
-    cover: "https://images.unsplash.com/photo-1525672261690-0b27a2071ac0?q=80&w=1200&auto=format&fit=crop",
+    cover:
+      "https://images.unsplash.com/photo-1525672261690-0b27a2071ac0?q=80&w=1200&auto=format&fit=crop",
     audio: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav",
     tags: ["intro", "vision"],
   },
@@ -32,7 +35,8 @@ const EPISODES: Episode[] = [
     duration: "18:55",
     description:
       "On recipes that feel like home, the joy of feeding friends, and three pantry staples.",
-    cover: "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop",
+    cover:
+      "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop",
     audio: "https://www2.cs.uic.edu/~i101/SoundFiles/PinkPanther30.wav",
     tags: ["cooking", "stories"],
   },
@@ -43,7 +47,8 @@ const EPISODES: Episode[] = [
     duration: "29:07",
     description:
       "A meander through seaside evenings, gratitude lists, and calm breathing.",
-    cover: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?q=80&w=1200&auto=format&fit=crop",
+    cover:
+      "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?q=80&w=1200&auto=format&fit=crop",
     audio: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav",
     tags: ["sunset", "reflection"],
   },
@@ -54,7 +59,8 @@ const EPISODES: Episode[] = [
     duration: "16:42",
     description:
       "Tiny challenges, low-pressure creativity, and keeping the spark fun.",
-    cover: "https://images.unsplash.com/photo-1480497490787-505ec076689f?q=80&w=1200&auto=format&fit=crop",
+    cover:
+      "https://images.unsplash.com/photo-1480497490787-505ec076689f?q=80&w=1200&auto=format&fit=crop",
     audio: "https://www2.cs.uic.edu/~i101/SoundFiles/Trumpet24.wav",
     tags: ["growth", "habits"],
   },
@@ -66,27 +72,34 @@ function useAudio(src?: string) {
 
   useEffect(() => {
     if (!src) return;
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
+    // tear down any existing audio
+    audioRef.current?.pause();
+
     const el = new Audio(src);
     el.preload = "metadata";
     el.onended = () => setPlaying(false);
+    el.onpause = () => setPlaying(false);
     audioRef.current = el;
+
     return () => {
       el.pause();
       el.src = "";
     };
   }, [src]);
 
-  const toggle = () => {
+  const toggle = async () => {
     const el = audioRef.current;
     if (!el) return;
-    if (playing) {
+    if (el.paused) {
+      try {
+        await el.play();
+        setPlaying(true);
+      } catch {
+        setPlaying(false);
+      }
+    } else {
       el.pause();
       setPlaying(false);
-    } else {
-      el.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
     }
   };
 
@@ -100,24 +113,18 @@ export default function PodcastPage() {
 
   const featured = EPISODES[0];
   const recent = useMemo(() => EPISODES.slice(1), []);
-
   const { playing, toggle } = useAudio(featured.audio);
 
-  return (
-    <main id="podcast" className="relative min-h-screen bg-transparent text-white">
-      {/* Gradient page backdrop (soft sunset vibe) */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10 opacity-[0.92]"
-        style={{
-          background:
-            "radial-gradient(120% 80% at 50% 120%, #ef6a2f 0%, #ff934d 25%, #ffd2a8 45%, #cfcbe2 70%, #8ea1c7 100%)",
-        }}
-      />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_60%_20%,rgba(255,255,255,.22),transparent_35%)]" />
+  const dateFmt = (d: string) =>
+    new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
-      {/* Page container; pad for the fixed header */}
-      <div className="mx-auto max-w-7xl px-6 pt-28 pb-20">
+  return (
+    <main className="relative min-h-screen text-white">
+      {/* gentle animated background */}
+      <BackgroundVideoStack src={GENTLERAIN_BG} tintGradient="from-slate-900/10 via-slate-900/25 to-slate-950/45" />
+
+      {/* content */}
+      <div className="relative z-10 mx-auto max-w-7xl px-6 pt-28 pb-20">
         {/* Hero */}
         <motion.header
           initial={{ opacity: 0, y: 16 }}
@@ -125,9 +132,7 @@ export default function PodcastPage() {
           transition={{ duration: 0.6 }}
           className="mb-10 text-center"
         >
-          <p className="text-sm font-semibold tracking-widest text-white/85">
-            PODCAST
-          </p>
+          <p className="text-sm font-semibold tracking-widest text-white/85">PODCAST</p>
           <h1 className="mt-2 font-heading text-4xl sm:text-5xl md:text-6xl leading-[1.06] tracking-tight">
             Stories at Sunset — The Podcast
           </h1>
@@ -135,17 +140,15 @@ export default function PodcastPage() {
             A gentle, audio-first space for notes, recipes, and reflections. Cozy vibes. Low pressure. Just your voice.
           </p>
 
-          {/* Subscribe row */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <a className="giovanni-btn" href="#subscribe">Subscribe</a>
             <a className="ghost-btn" href="#rss">RSS</a>
           </div>
         </motion.header>
 
-        {/* Featured episode */}
+        {/* Featured */}
         <section className="relative mb-14 overflow-hidden rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-            {/* Art */}
+          <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="relative">
               <img
                 src={featured.cover}
@@ -156,18 +159,15 @@ export default function PodcastPage() {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
             </div>
 
-            {/* Text + mini player */}
             <div className="flex flex-col justify-center p-6 sm:p-8">
-              <span className="text-xs uppercase tracking-widest text-white/70 mb-1">
-                Featured Episode
-              </span>
+              <span className="mb-1 text-xs uppercase tracking-widest text-white/70">Featured Episode</span>
               <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl leading-tight">
                 {featured.title}
               </h2>
               <p className="mt-2 text-white/85">{featured.description}</p>
 
-              <div className="mt-4 flex items-center gap-3 text-sm text-white/80">
-                <span>{new Date(featured.date).toLocaleDateString()}</span>
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-white/80">
+                <span>{dateFmt(featured.date)}</span>
                 <span aria-hidden>•</span>
                 <span>{featured.duration}</span>
                 {featured.tags?.length ? (
@@ -175,10 +175,7 @@ export default function PodcastPage() {
                     <span aria-hidden>•</span>
                     <div className="flex flex-wrap gap-2">
                       {featured.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full border border-white/20 px-2 py-0.5"
-                        >
+                        <span key={t} className="rounded-full border border-white/20 px-2 py-0.5">
                           {t}
                         </span>
                       ))}
@@ -187,23 +184,20 @@ export default function PodcastPage() {
                 ) : null}
               </div>
 
-              {/* Player */}
-              <div className="mt-6 flex items-center gap-3">
+              <div className="mt-5 flex items-center gap-3">
                 <button
                   onClick={toggle}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30"
                   aria-label={playing ? "Pause" : "Play"}
                 >
                   {playing ? (
-                    /* Pause icon */
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                      <rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor" />
-                      <rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor" />
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                      <rect x="6" y="5" width="4" height="14" rx="1.2" />
+                      <rect x="14" y="5" width="4" height="14" rx="1.2" />
                     </svg>
                   ) : (
-                    /* Play icon */
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                      <path d="M8 5v14l11-7L8 5z" fill="currentColor" />
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7L8 5z" />
                     </svg>
                   )}
                 </button>
@@ -216,10 +210,10 @@ export default function PodcastPage() {
           </div>
         </section>
 
-        {/* Recent episodes grid */}
+        {/* Recent grid */}
         <section aria-labelledby="episodes-heading">
           <h3 id="episodes-heading" className="sr-only">Episodes</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {recent.map((ep) => (
               <article
                 key={ep.id}
@@ -236,7 +230,7 @@ export default function PodcastPage() {
                 </div>
                 <div className="p-5">
                   <p className="text-xs uppercase tracking-widest text-white/70">
-                    {new Date(ep.date).toLocaleDateString()} • {ep.duration}
+                    {dateFmt(ep.date)} • {ep.duration}
                   </p>
                   <h4 className="mt-1 font-heading text-xl leading-snug">{ep.title}</h4>
                   <p className="mt-2 line-clamp-2 text-white/85">{ep.description}</p>
@@ -259,7 +253,6 @@ export default function PodcastPage() {
             ))}
           </div>
 
-          {/* Pagination stub */}
           <div className="mt-10 flex items-center justify-center gap-3">
             <button className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/10">
               Newer
