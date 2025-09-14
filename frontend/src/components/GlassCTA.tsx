@@ -8,7 +8,7 @@ export default function GlassCTA() {
               A gift that grows with you
             </h3>
             <p className="mt-4 font-body text-lg text-white/90">
-              Blog, quiet notes, or a home for your voice—this space moves at your pace. This is all yours, whatever happens.
+              Where do you want to take this? A cozy blog? A home for your podcast? Recipe posts from your cooking era? A space for gamers to breathe? This site will move with you — at your pace. This is all yours, whatever happens.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <a href="/blog" className="rounded-full border border-white/50 px-5 py-2 text-white hover:bg-white/10">

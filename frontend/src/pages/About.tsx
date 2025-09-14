@@ -153,12 +153,7 @@ export default function About() {
         </div>
       </Section>
 
-      <footer className="mx-auto max-w-6xl px-6 pb-16 text-sm text-blue-200/70 md:px-8">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <p>Built with love under blue sunsets. Silhouettes, not faces. 💙</p>
-          <p>Sunset today: your favorite hour.</p>
-        </div>
-      </footer>
+    
     </main>
   );
 }

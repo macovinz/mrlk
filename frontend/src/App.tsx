@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "@/components/Layout";
 
 import Home from "@/pages/Home";
-import AboutPage from "@/pages/About";
 import PodcastPage from "@/pages/Podcast";
 import SinglePodcast from "@/pages/SinglePodcast";
 import BlogPage from "@/pages/BlogPage";
@@ -15,8 +14,6 @@ export default function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
-          
-            <Route path="/about" element={<AboutPage />} />
             <Route path="/podcast" element={<PodcastPage />} />
             <Route path="/podcast/:slug" element={<SinglePodcast />} />
             <Route path="/blog" element={<BlogPage />} />

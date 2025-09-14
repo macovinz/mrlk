@@ -5,13 +5,36 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
+/* -------------------------------------------------
+   Fonts & Theme Tokens
+------------------------------------------------- */
 :root{
-  --font-display: 'Poppins', sans-serif;   /* was serif */
-  --font-body: 'Josefin Sans', sans-serif;
-}
-@layer base { h1,h2,h3,h4,h5,h6 { font-family: var(--font-display); } }
+  --font-display: 'Poppins', sans-serif;     /* headings */
+  --font-body: 'Josefin Sans', sans-serif;   /* body */
 
-/* Global base */
+  /* brand colors */
+  --hero-blue: #091485;                      /* requested hex for hero heading */
+  --btn-blue: #2563eb;                       /* blue-600 */
+  --btn-blue-hover: #1d4ed8;                 /* blue-700 */
+  --btn-amber: #f59e0b;                      /* amber-500 */
+  --btn-amber-hover: #d97706;                /* amber-600 */
+  --btn-yellow: #facc15;                     /* yellow-400 */
+  --btn-yellow-hover: #eab308;               /* yellow-500 */
+  --btn-ink: #1e293b;                        /* slate-800 */
+}
+
+@layer base {
+  /* Make all headings use Poppins */
+  h1,h2,h3,h4,h5,h6 { font-family: var(--font-display); }
+}
+
+/* Utility helpers for hero heading color */
+.text-hero-blue { color: var(--hero-blue); }
+.hero-heading { color: var(--hero-blue); }
+
+/* -------------------------------------------------
+   Global base
+------------------------------------------------- */
 html, body, #root { min-height: 100%; }
 html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
 body {
@@ -60,17 +83,69 @@ body {
 [data-reveal].reveal-in{ transition-delay: var(--reveal-delay, 0s); }
 
 /* -------------------------------------------------
-   Buttons
+   Buttons (unified system)
+   Usage:
+     <a class="btn btn-blue"> ... </a>
+     <a class="btn btn-amber"> ... </a>
+     <a class="btn btn-yellow"> ... </a>
+     <a class="btn btn-ink"> ... </a>
+     <a class="btn btn-outline"> ... </a>
 ------------------------------------------------- */
-.giovanni-btn{
-  @apply inline-flex items-center justify-center rounded-2xl px-5 py-3 text-base font-semibold transition no-underline;
-  background: #1e293b; color:#fff; box-shadow: 0 8px 28px rgba(2,6,23,.15);
+.btn{
+  @apply inline-flex items-center justify-center rounded-2xl px-5 py-3 text-base font-semibold no-underline transition;
+  box-shadow: 0 8px 28px rgba(9, 34, 146, 0.12);
+  color: #fff;
 }
+.btn:focus-visible{
+  outline: 2px solid rgba(255,255,255,.7);
+  outline-offset: 2px;
+}
+
+/* Blue */
+.btn-blue{
+  background: var(--btn-blue);
+}
+.btn-blue:hover{ background: var(--btn-blue-hover); transform: translateY(-1px); }
+
+/* Amber (warm) */
+.btn-amber{
+  background: var(--btn-amber);
+}
+.btn-amber:hover{ background: var(--btn-amber-hover); transform: translateY(-1px); }
+
+/* Yellow (bright) */
+.btn-yellow{
+  background: var(--btn-yellow);
+  color: #0f172a; /* dark text for contrast on yellow */
+}
+.btn-yellow:hover{ background: var(--btn-yellow-hover); transform: translateY(-1px); }
+
+/* Ink (slate) – matches your original hero button */
+.btn-ink{
+  background: var(--btn-ink);
+}
+.btn-ink:hover{ filter: brightness(1.05); transform: translateY(-1px); }
+
+/* Outline / Ghost */
+.btn-outline{
+  @apply border;
+  border-color: rgba(255,255,255,.45);
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+.btn-outline:hover{
+  background: rgba(255,255,255,.22);
+  transform: translateY(-1px);
+}
+
+/* Back-compat with your existing class names */
+.giovanni-btn{ @apply btn; background: var(--btn-ink); }
 .giovanni-btn:hover{ filter: brightness(1.05); transform: translateY(-1px); }
-.ghost-btn{
-  @apply inline-flex items-center justify-center rounded-2xl px-5 py-3 text-base font-semibold transition border no-underline;
-  border-color: rgba(2,6,23,.15); background: rgba(255,255,255,.75); color:#0f172a;
-}
+.ghost-btn{ @apply btn btn-outline; }
+
+/* Smaller pill variant if needed */
+.btn-sm{ @apply rounded-full px-4 py-2 text-sm; }
 
 /* -------------------------------------------------
    Gentlerain-style scaffold (safe to keep)
