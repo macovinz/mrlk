@@ -76,7 +76,7 @@ export default function Hero() {
             Start reading
           </a>
           <a
-            href="#about"
+            href="#gift"
             className="rounded-full border border-white/50 px-5 py-2 text-white hover:bg-white/10"
           >
             About this gift

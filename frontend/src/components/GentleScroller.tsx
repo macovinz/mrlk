@@ -8,10 +8,11 @@ gsap.registerPlugin(ScrollTrigger);
 type Slide = {
   title: string;
   desc: string;
-  gradient: string;         // Tailwind gradient classes
+  gradient?: string;      // optional now (slide 1 uses a custom bg)
   image?: string;
   video?: string;
   portraitSide?: "left" | "right" | "none";
+  heroFlipBg?: boolean;   // NEW: when true, use flipped hero gradient
 };
 
 const SLIDES: Slide[] = [
@@ -19,8 +20,8 @@ const SLIDES: Slide[] = [
     title: "To the one who made me experience ‘Bliss’",
     desc:
       "Happy birthday, baby. I’m grateful for your existence and the time and attention you share with me. Like sunsets, you are endlessly beautiful — every day, a new shade. This site is for you.",
-    // invert the feel vs the hero: start cooler and move warmer
-    gradient: "from-[#9AAEF5] via-[#7A6BB3] to-[#F39C77]",
+    // we’ll use heroFlipBg instead of tailwind gradient here
+    heroFlipBg: true,
     image: "/wp-content/uploads/2025/09/missy.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "right",
@@ -59,7 +60,7 @@ const SLIDES: Slide[] = [
     gradient: "from-[#FBF4D7] via-[#F9C49A] to-[#8C6EC4]",
     image: "/wp-content/uploads/2025/09/sillouette1.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
-    portraitSide: "right",
+    portraitSide: "left",
   },
   {
     title: "A home for your voice",
@@ -87,41 +88,34 @@ export default function GentleScroller() {
         (videoWrap.current?.querySelectorAll("video") as NodeListOf<HTMLVideoElement>) ?? []
       );
 
-      // Initial states (first section visible immediately)
-      sections.forEach((s, i) => {
-        gsap.set(s.querySelector(".vh-title"), { y: 24, opacity: i === 0 ? 1 : 0 });
-        gsap.set(s.querySelector(".vh-desc"),  { y: 18, opacity: i === 0 ? 1 : 0 });
-        gsap.set(s.querySelector(".vh-image"), { y: 16, opacity: i === 0 ? 1 : 0 });
-      });
+      gsap.set(sections.map(s => s.querySelector(".vh-title")), { y: 24, opacity: 0 });
+      gsap.set(sections.map(s => s.querySelector(".vh-desc")), { y: 18, opacity: 0 });
+      gsap.set(sections.map(s => s.querySelector(".vh-image")), { y: 16, opacity: 0 });
+
       videos.forEach((v, i) => {
         gsap.set(v, { opacity: i === 0 ? 1 : 0 });
-        v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
-        // try to kick autoplay
-        v.play().catch(() => void 0);
+        v.muted = true; v.loop = true; v.playsInline = true;
+        void v.play().catch(() => {});
       });
 
-      // define before using (fixes “activate before initialization”)
-      function activate(idx: number) {
-        // crossfade background videos
-        videos.forEach((v, vi) => {
-          gsap.to(v, { opacity: vi === idx ? 1 : 0, duration: 0.6, ease: "power1.out" });
-          if (vi === idx && v.paused) v.play().catch(() => void 0);
-        });
-
-        const current = sections[idx];
-        const title = current?.querySelector(".vh-title");
-        const desc  = current?.querySelector(".vh-desc");
-        const img   = current?.querySelector(".vh-image");
-        const grad  = current?.querySelector(".vh-gradient");
-
-        gsap.to(title, { y: 0, opacity: 1, duration: 0.55, ease: "power2.out" });
-        gsap.to(desc,  { y: 0, opacity: 1, duration: 0.50, ease: "power2.out", delay: 0.08 });
-        gsap.to(img,   { y: 0, opacity: 1, duration: 0.50, ease: "power2.out", delay: 0.14 });
-        gsap.fromTo(grad, { yPercent: 6 }, { yPercent: -6, duration: 0.8, ease: "none" });
-      }
-
-      // triggers per section
       sections.forEach((section, i) => {
+        const title = section.querySelector(".vh-title");
+        const desc  = section.querySelector(".vh-desc");
+        const img   = section.querySelector(".vh-image");
+        const grad  = section.querySelector(".vh-gradient");
+
+        // HOISTED fn fixes “Cannot access 'activate' before initialization”
+        function activate(idx: number) {
+          videos.forEach((v, vi) => {
+            gsap.to(v, { opacity: vi === idx ? 1 : 0, duration: 0.6, ease: "power1.out" });
+            if (vi === idx && v.paused) void v.play().catch(() => {});
+          });
+          gsap.to(title, { y: 0, opacity: 1, duration: 0.55, ease: "power2.out" });
+          gsap.to(desc,  { y: 0, opacity: 1, duration: 0.5,  ease: "power2.out", delay: 0.08 });
+          gsap.to(img,   { y: 0, opacity: 1, duration: 0.5,  ease: "power2.out", delay: 0.14 });
+          gsap.fromTo(grad, { yPercent: 6 }, { yPercent: -6, duration: 0.8, ease: "none" });
+        }
+
         ScrollTrigger.create({
           trigger: section,
           start: "top 65%",
@@ -131,12 +125,9 @@ export default function GentleScroller() {
         });
       });
 
-      // ensure first state is active at load
-      activate(0);
       ScrollTrigger.refresh();
     };
 
-    // wait for images to settle to avoid wrong measurements
     const imgs = Array.from(document.images);
     let pending = imgs.filter((im) => !im.complete).length;
     if (pending === 0) ready();
@@ -148,10 +139,12 @@ export default function GentleScroller() {
       });
     }
 
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => { ScrollTrigger.getAll().forEach(t => t.kill()); };
   }, []);
+
+  // flipped hero gradient for slide 1 (vertical flip)
+  const FLIPPED_HERO_BG =
+    "radial-gradient(120% 80% at 50% -20%, #ef6a2f 0%, #ff934d 25%, #ffd2a8 45%, #cfcbe2 70%, #8ea1c7 100%)";
 
   return (
     <div ref={root} className="relative w-full">
@@ -164,7 +157,6 @@ export default function GentleScroller() {
             playsInline
             muted
             loop
-            preload="auto"
           >
             {s.video ? <source src={s.video} type="video/webm" /> : null}
           </video>
@@ -175,11 +167,21 @@ export default function GentleScroller() {
       {/* FULL-VIEW SECTIONS */}
       {SLIDES.map((s, i) => {
         const side = s.portraitSide ?? (i % 2 === 0 ? "right" : "left");
+        const isFirst = i === 0 && s.heroFlipBg;
+
         return (
           <section key={i} className="vh-section relative grid min-h-[100vh] w-full place-items-stretch">
             {/* gradient tint over video */}
-            <div className={`vh-gradient pointer-events-none absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-40`} />
+            {isFirst ? (
+              <div
+                className="vh-gradient pointer-events-none absolute inset-0 opacity-45"
+                style={{ background: FLIPPED_HERO_BG, mixBlendMode: "multiply" }}
+              />
+            ) : (
+              <div className={`vh-gradient pointer-events-none absolute inset-0 bg-gradient-to-br ${s.gradient} opacity-40`} />
+            )}
 
+            {/* content */}
             <div className="relative mx-auto flex min-h-[100vh] w-full max-w-7xl items-center px-6">
               <div
                 className={`grid w-full grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 lg:gap-14 xl:gap-20 ${
@@ -200,7 +202,7 @@ export default function GentleScroller() {
 
                 {/* text */}
                 <div className={`flex flex-col justify-center ${side === "left" ? "md:[direction:ltr]" : ""}`}>
-                  <h3 className="vh-title font-display text-4xl sm:text-5xl md:text-6xl leading-[1.06] tracking-tight text-blue-900 drop-shadow opacity-0">
+                  <h3 className="vh-title font-display text-4xl sm:text-5xl md:text-6xl leading-[1.06] tracking-tight text-white drop-shadow opacity-0">
                     {s.title}
                   </h3>
                   <p className="vh-desc mt-4 max-w-xl font-body text-lg sm:text-xl text-white/90 opacity-0">

@@ -1,295 +1,275 @@
-import { useEffect, useMemo, useState } from 'react'
-import { format } from 'date-fns'
-import { Input } from '@/components/ui/input'
-import {
-  Select, SelectTrigger, SelectValue, SelectContent, SelectItem
-} from '@/components/ui/select'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Button } from '@/components/ui/button'
-import { Rows, CalendarRange, CalendarDays, MapPin, ArrowRight } from 'lucide-react'
-import EventsCalendar from '@/components/EventsCalendar'
+// src/pages/Podcast.tsx
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
-type WPEvent = {
-  id: number
-  slug: string
-  title: { rendered: string }
-  acf?: {
-    event_date?: string
-    event_end_date?: string
-    organizer?: string
-    boat_type?: string
-    level?: string
-    event_location?: string | { address: string }
-  }
-  _embedded?: {
-    'wp:featuredmedia'?: { source_url?: string }[]
-  }
-}
+type Episode = {
+  id: string;
+  title: string;
+  date: string;             // ISO or pretty date
+  duration: string;         // "28:42"
+  description: string;
+  cover: string;            // image url
+  audio: string;            // mp3 or m4a url
+  tags?: string[];
+};
 
-export default function EventsPage() {
-  const [events, setEvents] = useState<WPEvent[]>([])
-  const [error, setError] = useState(false)
+const EPISODES: Episode[] = [
+  {
+    id: "ep-07",
+    title: "The Gentle Start",
+    date: "2025-01-10",
+    duration: "23:18",
+    description:
+      "A soft hello: vision, why audio-first, and how we’ll keep it cozy and private-friendly.",
+    cover: "https://images.unsplash.com/photo-1525672261690-0b27a2071ac0?q=80&w=1200&auto=format&fit=crop",
+    audio: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav",
+    tags: ["intro", "vision"],
+  },
+  {
+    id: "ep-06",
+    title: "Kitchen Notes: Memory Flavors",
+    date: "2024-12-18",
+    duration: "18:55",
+    description:
+      "On recipes that feel like home, the joy of feeding friends, and three pantry staples.",
+    cover: "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop",
+    audio: "https://www2.cs.uic.edu/~i101/SoundFiles/PinkPanther30.wav",
+    tags: ["cooking", "stories"],
+  },
+  {
+    id: "ep-05",
+    title: "Sunsets I Remember",
+    date: "2024-12-01",
+    duration: "29:07",
+    description:
+      "A meander through seaside evenings, gratitude lists, and calm breathing.",
+    cover: "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?q=80&w=1200&auto=format&fit=crop",
+    audio: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav",
+    tags: ["sunset", "reflection"],
+  },
+  {
+    id: "ep-04",
+    title: "Playful Practice",
+    date: "2024-11-15",
+    duration: "16:42",
+    description:
+      "Tiny challenges, low-pressure creativity, and keeping the spark fun.",
+    cover: "https://images.unsplash.com/photo-1480497490787-505ec076689f?q=80&w=1200&auto=format&fit=crop",
+    audio: "https://www2.cs.uic.edu/~i101/SoundFiles/Trumpet24.wav",
+    tags: ["growth", "habits"],
+  },
+];
 
-  const [search, setSearch] = useState('')
-  const [boatType, setBoatType] = useState('All')
-  const [level, setLevel] = useState('All')
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
-  const [sort, setSort] = useState<'upcoming' | 'past'>('upcoming')
+function useAudio(src?: string) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(
-          `${import.meta.env.VITE_WORDPRESS_API_BASE}/event?per_page=100&_embed&acf_format=standard`
-        )
-        if (!res.ok) throw new Error('Network error')
-        const data = (await res.json()) as WPEvent[]
-        setEvents(Array.isArray(data) ? data : [])
-      } catch (e) {
-        console.error(e)
-        setError(true)
-      }
-    })()
-  }, [])
+    if (!src) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    const el = new Audio(src);
+    el.preload = "metadata";
+    el.onended = () => setPlaying(false);
+    audioRef.current = el;
+    return () => {
+      el.pause();
+      el.src = "";
+    };
+  }, [src]);
 
-  const filteredEvents = useMemo(() => {
-    const today = startOfToday()
-    return (Array.isArray(events) ? events : [])
-      .filter(e => {
-        const titleMatch = (e.title?.rendered ?? '').toLowerCase().includes(search.toLowerCase())
-        const boatMatch = boatType === 'All' || e.acf?.boat_type === boatType
-        const levelMatch = level === 'All' || e.acf?.level === level
-        return titleMatch && boatMatch && levelMatch
-      })
-      .filter(e => {
-        // Use end date when available so multi-day events still show as upcoming while ongoing.
-        const start = safeDate(e.acf?.event_date)
-        const end = safeDate(e.acf?.event_end_date) ?? start
-        if (sort === 'upcoming') {
-          return !!end && end >= today
-        }
-        // Past: if no valid end/start, treat as past so it doesn’t break the UI
-        return !end || end < today
-      })
-  }, [events, search, boatType, level, sort])
+  const toggle = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+      setPlaying(false);
+    } else {
+      el.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    }
+  };
 
-  const displayEvents = useMemo(() => {
-    const arr = filteredEvents.slice()
-    arr.sort((a, b) => {
-      const aT = safeDate(a.acf?.event_date)?.getTime() ?? 0
-      const bT = safeDate(b.acf?.event_date)?.getTime() ?? 0
-      return sort === 'upcoming' ? aT - bT : bT - aT
-    })
-    return arr
-  }, [filteredEvents, sort])
+  return { playing, toggle };
+}
+
+export default function PodcastPage() {
+  useEffect(() => {
+    document.title = "Podcast — Stories at Sunset";
+  }, []);
+
+  const featured = EPISODES[0];
+  const recent = useMemo(() => EPISODES.slice(1), []);
+
+  const { playing, toggle } = useAudio(featured.audio);
 
   return (
-    <main className="pb-16">
-      {/* Header with ocean-style underline */}
-      <section className="bg-ink text-white">
-        <div className="container py-10 md:py-12">
-          <h1 className="section-title text-white uppercase">Philippine Sailing Events</h1>
-          <span className="mt-3 block h-1 w-20 bg-brand-yellow" />
-          <p className="mt-3 max-w-2xl text-sm text-white/85">
-            Discover regattas, championships, and training events across the Philippines.
+    <main id="podcast" className="relative min-h-screen bg-transparent text-white">
+      {/* Gradient page backdrop (soft sunset vibe) */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 opacity-[0.92]"
+        style={{
+          background:
+            "radial-gradient(120% 80% at 50% 120%, #ef6a2f 0%, #ff934d 25%, #ffd2a8 45%, #cfcbe2 70%, #8ea1c7 100%)",
+        }}
+      />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_60%_20%,rgba(255,255,255,.22),transparent_35%)]" />
+
+      {/* Page container; pad for the fixed header */}
+      <div className="mx-auto max-w-7xl px-6 pt-28 pb-20">
+        {/* Hero */}
+        <motion.header
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-10 text-center"
+        >
+          <p className="text-sm font-semibold tracking-widest text-white/85">
+            PODCAST
           </p>
-        </div>
-      </section>
+          <h1 className="mt-2 font-heading text-4xl sm:text-5xl md:text-6xl leading-[1.06] tracking-tight">
+            Stories at Sunset — The Podcast
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl text-white/90 font-body text-lg sm:text-xl">
+            A gentle, audio-first space for notes, recipes, and reflections. Cozy vibes. Low pressure. Just your voice.
+          </p>
 
-      <section className="container mt-8">
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Input
-            placeholder="Search events…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="col-span-1 md:col-span-2"
-          />
-
-          <Select value={boatType} onValueChange={setBoatType}>
-            <SelectTrigger><SelectValue placeholder="Boat Type" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Types</SelectItem>
-              <SelectItem value="Dinghy">Dinghy</SelectItem>
-              <SelectItem value="Keelboat">Keelboat</SelectItem>
-              <SelectItem value="Offshore">Offshore</SelectItem>
-              <SelectItem value="Windsurf">Windsurf</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={level} onValueChange={setLevel}>
-            <SelectTrigger><SelectValue placeholder="Level" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Levels</SelectItem>
-              <SelectItem value="Club Race">Club Race</SelectItem>
-              <SelectItem value="Nationals">Nationals</SelectItem>
-              <SelectItem value="International">International</SelectItem>
-              <SelectItem value="Offshore">Offshore</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* View & Sort */}
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          <ToggleGroup
-            type="single"
-            value={viewMode}
-            onValueChange={(v) => v && setViewMode(v as 'list' | 'calendar')}
-            className="gap-2"
-          >
-            <ToggleGroupItem value="list" className="h-9 w-9 rounded-md border border-border text-ink data-[state=on]:bg-ink data-[state=on]:text-white">
-              <Rows className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="calendar" className="h-9 w-9 rounded-md border border-border text-ink data-[state=on]:bg-ink data-[state=on]:text-white">
-              <CalendarRange className="h-4 w-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-
-          <ToggleGroup
-            type="single"
-            value={sort}
-            onValueChange={(v) => v && setSort(v as 'upcoming' | 'past')}
-            className="gap-2"
-          >
-            <ToggleGroupItem value="upcoming" className="rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide border-border text-ink data-[state=on]:bg-ink data-[state=on]:text-white">
-              Upcoming
-            </ToggleGroupItem>
-            <ToggleGroupItem value="past" className="rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide border-border text-ink data-[state=on]:bg-ink data-[state=on]:text-white">
-              Past
-            </ToggleGroupItem>
-          </ToggleGroup>
-
-          <a href="/ical-feed.ics" className="ml-auto inline-flex items-center gap-2 text-sm font-semibold text-ink hover:underline">
-            <CalendarDays className="h-4 w-4" />
-            Subscribe via iCal
-          </a>
-        </div>
-
-        {error && <p className="text-red-600">Failed to load events.</p>}
-
-        {viewMode === 'list' ? (
-          displayEvents.length ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {displayEvents.map((e) => (
-                <EventCard key={e.id} event={e} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">No matching events.</div>
-          )
-        ) : (
-          <EventsCalendar events={displayEvents} />
-        )}
-      </section>
-    </main>
-  )
-}
-
-/* ===== Helpers (dates / formatting) ===== */
-function safeDate(v?: string | null) {
-  if (!v) return null
-  const d = new Date(v)
-  return isNaN(d.getTime()) ? null : d
-}
-function startOfToday() {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d
-}
-function safeFmt(dateStr: string, fmtStr: string) {
-  try { return format(new Date(dateStr), fmtStr) } catch { return '' }
-}
-function stripHTML(html: string) {
-  return html.replace(/<[^>]+>/g, '')
-}
-
-/* ===== Card ===== */
-function EventCard({ event }: { event: WPEvent }) {
-  const img = event._embedded?.['wp:featuredmedia']?.[0]?.source_url ?? '/fallback.jpg'
-  const title = event.title?.rendered ?? ''
-  const start = event.acf?.event_date
-  const end = event.acf?.event_end_date
-  const dateLabel = formatDateRange(start, end)
-
-  const locRaw = event.acf?.event_location
-  const location =
-    typeof locRaw === 'object' && (locRaw as any)?.address
-      ? (locRaw as any).address.split(',')[0]
-      : (locRaw as string) || 'TBA'
-
-  const boat = event.acf?.boat_type || ''
-  const lvl = event.acf?.level || ''
-  const org = event.acf?.organizer || ''
-
-  return (
-    <div className="bg-white rounded-md border shadow-sm hover:shadow-md transition overflow-hidden">
-      <div className="relative">
-        <img src={img} alt={stripHTML(title)} className="h-40 w-full object-cover" loading="lazy" />
-        {dateLabel && (
-          <div className="absolute top-2 right-2 bg-brand-yellow text-ink text-[11px] font-black uppercase tracking-wider px-2 py-1 rounded">
-            {dateLabel}
+          {/* Subscribe row */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a className="giovanni-btn" href="#subscribe">Subscribe</a>
+            <a className="ghost-btn" href="#rss">RSS</a>
           </div>
-        )}
+        </motion.header>
+
+        {/* Featured episode */}
+        <section className="relative mb-14 overflow-hidden rounded-3xl border border-white/10 bg-white/10 backdrop-blur-md">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+            {/* Art */}
+            <div className="relative">
+              <img
+                src={featured.cover}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="eager"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+            </div>
+
+            {/* Text + mini player */}
+            <div className="flex flex-col justify-center p-6 sm:p-8">
+              <span className="text-xs uppercase tracking-widest text-white/70 mb-1">
+                Featured Episode
+              </span>
+              <h2 className="font-heading text-2xl sm:text-3xl md:text-4xl leading-tight">
+                {featured.title}
+              </h2>
+              <p className="mt-2 text-white/85">{featured.description}</p>
+
+              <div className="mt-4 flex items-center gap-3 text-sm text-white/80">
+                <span>{new Date(featured.date).toLocaleDateString()}</span>
+                <span aria-hidden>•</span>
+                <span>{featured.duration}</span>
+                {featured.tags?.length ? (
+                  <>
+                    <span aria-hidden>•</span>
+                    <div className="flex flex-wrap gap-2">
+                      {featured.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full border border-white/20 px-2 py-0.5"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
+              {/* Player */}
+              <div className="mt-6 flex items-center gap-3">
+                <button
+                  onClick={toggle}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30"
+                  aria-label={playing ? "Pause" : "Play"}
+                >
+                  {playing ? (
+                    /* Pause icon */
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor" />
+                      <rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor" />
+                    </svg>
+                  ) : (
+                    /* Play icon */
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                      <path d="M8 5v14l11-7L8 5z" fill="currentColor" />
+                    </svg>
+                  )}
+                </button>
+                <div className="flex-1 overflow-hidden rounded-full border border-white/15 bg-white/10">
+                  <div className="h-2 w-1/4 bg-white/70" />
+                </div>
+                <span className="text-sm tabular-nums text-white/80">{featured.duration}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent episodes grid */}
+        <section aria-labelledby="episodes-heading">
+          <h3 id="episodes-heading" className="sr-only">Episodes</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recent.map((ep) => (
+              <article
+                key={ep.id}
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md"
+              >
+                <div className="relative">
+                  <img
+                    src={ep.cover}
+                    alt=""
+                    className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    loading="lazy"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
+                </div>
+                <div className="p-5">
+                  <p className="text-xs uppercase tracking-widest text-white/70">
+                    {new Date(ep.date).toLocaleDateString()} • {ep.duration}
+                  </p>
+                  <h4 className="mt-1 font-heading text-xl leading-snug">{ep.title}</h4>
+                  <p className="mt-2 line-clamp-2 text-white/85">{ep.description}</p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <a
+                      className="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-md hover:bg-white/30"
+                      href={`/podcast/${ep.id}`}
+                    >
+                      Play episode
+                    </a>
+                    <a
+                      className="rounded-full border border-white/40 px-4 py-2 text-sm hover:bg-white/10"
+                      href={`/podcast/${ep.id}`}
+                    >
+                      Show notes
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Pagination stub */}
+          <div className="mt-10 flex items-center justify-center gap-3">
+            <button className="rounded-full border border-white/20 px-4 py-2 text-sm hover:bg-white/10">
+              Newer
+            </button>
+            <button className="rounded-full bg-white/20 px-4 py-2 text-sm backdrop-blur-md hover:bg-white/30">
+              Older
+            </button>
+          </div>
+        </section>
       </div>
-
-      <div className="p-4">
-        {/* tags */}
-        <div className="mb-2 flex flex-wrap gap-1.5">
-          {boat && <BadgePill label={boat} />}
-          {lvl && <BadgePill label={lvl} />}
-          {org && <BadgePill label={org} />}
-        </div>
-
-        {/* title */}
-        <h3
-          className="font-heading font-extrabold leading-snug text-[17px] text-ink"
-          dangerouslySetInnerHTML={{ __html: title }}
-        />
-
-        {/* location */}
-        <div className="mt-1 flex items-center gap-1 text-[12px] uppercase tracking-wide text-muted">
-          <MapPin className="h-3.5 w-3.5" />
-          <span className="text-ink/80">{location}</span>
-        </div>
-
-        {/* CTA */}
-        <div className="mt-3">
-          <Button size="sm" asChild>
-            <a href={`/event/${event.slug}`} className="inline-flex items-center">
-              View Event
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </a>
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function BadgePill({ label }: { label: string }) {
-  return (
-    <span className="text-[11px] font-semibold uppercase tracking-wide rounded-full border border-ink/15 bg-ink/[0.04] text-ink px-2 py-0.5">
-      {label}
-    </span>
-  )
-}
-
-function formatDateRange(start?: string, end?: string) {
-  const s = safeDate(start)
-  const e = safeDate(end)
-  if (!s && !e) return ''
-  if (s && !e) return safeFmt(start!, 'MMM d, yyyy')
-  if (!s && e) return safeFmt(end!, 'MMM d, yyyy')
-  // both exist:
-  try {
-    if (s!.getFullYear() === e!.getFullYear() && s!.getMonth() === e!.getMonth()) {
-      return `${format(s!, 'MMM d')} – ${format(e!, 'd, yyyy')}`
-    }
-    if (s!.getFullYear() === e!.getFullYear()) {
-      return `${format(s!, 'MMM d')} – ${format(e!, 'MMM d, yyyy')}`
-    }
-    return `${format(s!, 'MMM d, yyyy')} – ${format(e!, 'MMM d, yyyy')}`
-  } catch {
-    return ''
-  }
+    </main>
+  );
 }
