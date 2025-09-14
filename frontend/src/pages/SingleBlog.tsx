@@ -4,7 +4,6 @@ import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { ArrowLeft, Facebook, Twitter, Link as LinkIcon, Clock } from 'lucide-react'
 import NewsletterSignup from '../components/Newsletter'
-import SubmitStory from '../components/SubmitStory'
 import RelatedNews from '@/components/RelatedNews'
 
 const API_BASE = import.meta.env.VITE_WORDPRESS_API_BASE
@@ -195,7 +194,6 @@ export default function NewsArticle() {
         <NewsletterSignup />
       </section>
       <section className="container mt-10">
-        <SubmitStory />
       </section>
     </main>
   )
