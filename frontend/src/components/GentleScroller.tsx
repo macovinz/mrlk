@@ -40,7 +40,7 @@ const SLIDES: Slide[] = [
     desc:
       "Your love for family is like the setting sun: steady, anchoring, and endlessly giving. You carry loyalty not as duty, but as devotion. In your care, people feel safe. In your presence, people feel at home. That is a rare gift, and it is why I see you not only as beautiful, but as someone who embodies what it means to be a queen. You don’t need a crown for that — only your pineapple bun, your smile, and the grace that is already yours.",
     gradient: "from-[#FFC8A5] via-[#E46E59] to-[#4C5CAB]",
-    image: "/wp-content/uploads/2025/09/silhouette5.webp",
+    image: "/wp-content/uploads/2025/09/sillouette5.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "right",
   },
@@ -60,14 +60,14 @@ const SLIDES: Slide[] = [
     gradient: "from-[#FBF4D7] via-[#F9C49A] to-[#8C6EC4]",
     image: "/wp-content/uploads/2025/09/missy.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
-    portraitSide: "left",
+    portraitSide: "right",
   },
   {
     title: "A home for your voice",
     desc:
       "This can grow into your blog and podcast hub — publish what you love, in your own rhythm.",
     gradient: "from-[#FFF0DC] via-[#FFC6A1] to-[#7B6AC2]",
-    image: "/wp-content/uploads/2025/09/sillouette1.webp",
+    image: "/wp-content/uploads/2025/09/silhouette1.webp",
     video: "/wp-content/uploads/2025/09/blob_gradient_with_alpha_22_VP9.webm",
     portraitSide: "none",
   },
