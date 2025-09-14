@@ -11,6 +11,7 @@ export default function Home() {
       <section id="stories">
         <GentleScroller />
       </section>
+      
     </>
   );
 }

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import ConfettiOnScroll from "./ConfettiOnScroll";
 
 const SUNSET_BG =
-  "bg-[radial-gradient(120%_80%_at_50%_120%,#ef6a2f_0%,#ff934d_25%,#ffd2a8_45%,#cfcbe2_70%,#8ea1c7_100%)]";
+  "bg-[radial-gradient(120%_110%_at_50%_120%,#ef6a2f_0%,#ff934d_25%,#ffd2a8_45%,#cfcbe2_70%,#8ea1c7_100%)]";
 
 export default function Hero() {
   return (
