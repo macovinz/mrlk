@@ -1,35 +1,21 @@
-// src/components/SmoothScroll.tsx
-import { type PropsWithChildren, useEffect, useRef } from "react"
-import Lenis from "@studio-freight/lenis"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
+// SmoothScroll.tsx (or wherever you initialize)
+import Lenis from "lenis";
 
-gsap.registerPlugin(ScrollTrigger)
+useEffect(() => {
+  const lenis = new Lenis({
+    duration: 1.1,
+    easing: (t: number) => 1 - Math.pow(1 - t, 2),
+    // note: no smoothTouch here
+  });
 
-export default function SmoothScroll({ children }: PropsWithChildren) {
-  const lenisRef = useRef<Lenis | null>(null)
-
-  useEffect(() => {
-    document.documentElement.classList.add("lenis", "lenis-smooth")
-
-    const lenis = new Lenis({
-      duration: 1.1,
-      smoothWheel: true,
-      easing: (t: number) => 1 - Math.pow(1 - t, 4),
-    })
-    lenisRef.current = lenis
-
-    // Sync Lenis → ScrollTrigger (official pattern)
-    lenis.on("scroll", ScrollTrigger.update)
-    gsap.ticker.add((t) => lenis.raf(t * 1000))
-    gsap.ticker.lagSmoothing(0)
-
-    return () => {
-      gsap.ticker.remove((t) => lenis.raf(t * 1000))
-      lenis.destroy()
-      document.documentElement.classList.remove("lenis", "lenis-smooth")
-    }
-  }, [])
-
-  return <>{children}</>
+  const raf = (time: number) => {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  };
+  requestAnimationFrame(raf);
+  return () => lenis.destroy();
+}, []);
+function useEffect(_arg0: () => () => void, _arg1: never[]) {
+    throw new Error("Function not implemented.");
 }
+

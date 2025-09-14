@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from 'tailwindcss'
 import { fontFamily } from 'tailwindcss/defaultTheme'
 
@@ -20,14 +21,14 @@ const config: Config = {
         ink: 'oklch(0.21 0.006 285.9)',
       },
       fontFamily: {
-        // Body
-        sans: ['Inter', ...fontFamily.sans],
-        // Headings
-        heading: ['"Inter Tight"', 'Inter', ...fontFamily.sans],
-        // Optional alias if you want a separate display family
-        display: ['Inter', ...fontFamily.sans],
+        // Body text
+        sans: ['"Josefin Sans"', ...fontFamily.sans],
+        body: ['"Josefin Sans"', ...fontFamily.sans],
+
+        // Headings / display
+        heading: ['Poppins', ...fontFamily.sans],
+        display: ['Poppins', ...fontFamily.sans],
       },
-      // Enable numeric utility: `font-900`
       fontWeight: {
         900: '900',
       },

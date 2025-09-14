@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import Lenis from "@studio-freight/lenis";
+import Lenis from "lenis";
 
 const Silhouette = ({ className = "w-40 h-40" }: { className?: string }) => (
   <svg viewBox="0 0 128 128" className={className} aria-hidden>

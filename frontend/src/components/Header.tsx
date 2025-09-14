@@ -8,7 +8,7 @@ export default function Header() {
         <nav className="relative mx-auto max-w-7xl px-5 md:px-6 py-3.5 flex items-center justify-between text-white shadow-[rgba(0,0,0,0.6)]">
           <a href="#hero" className="font-extrabold tracking-tight">
             <span>For</span>
-            <span className="ml-1 text-blue-700"> Mechiel</span>
+            <span className="ml-1 text-blue-950"> MRLK</span>
           </a>
 
           <div className="flex items-center gap-5 text-sm">
