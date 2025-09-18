@@ -3,6 +3,7 @@ import BackgroundVideoStack from "@/components/BackgroundVideoStack";
 import { GENTLERAIN_BG } from "@/constants/gentlerain";
 import { Link } from "react-router-dom";
 
+
 type Post = {
   slug: string;
   title: string;
