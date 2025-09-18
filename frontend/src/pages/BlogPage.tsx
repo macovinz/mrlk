@@ -1,55 +1,22 @@
 // src/pages/BlogPage.tsx
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import BackgroundVideoStack from "@/components/BackgroundVideoStack";
 import { GENTLERAIN_BG } from "@/constants/gentlerain";
-import { Link } from "react-router-dom";
-
-
-type Post = {
-  slug: string;
-  title: string;
-  excerpt: string;
-  date: string;
-  cover: string;
-  tags?: string[];
-};
-
-const POSTS: Post[] = [
-  {
-    slug: "rice-and-quiet-mornings",
-    title: "Rice & Quiet Mornings",
-    excerpt:
-      "How the first pot of the day sets the tone — and three ways to keep breakfasts gentle.",
-    date: "2025-01-06",
-    cover:
-      "https://images.unsplash.com/photo-1512058564366-18510be2db19?q=80&w=1200&auto=format&fit=crop",
-    tags: ["kitchen", "routine"],
-  },
-  {
-    slug: "how-to-keep-a-sunset",
-    title: "How to Keep a Sunset",
-    excerpt:
-      "A jar of notes, a better camera roll, and why we save the small things.",
-    date: "2024-12-19",
-    cover:
-      "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?q=80&w=1200&auto=format&fit=crop",
-    tags: ["sunsets", "memory"],
-  },
-  {
-    slug: "play-lists-not-playlists",
-    title: "Play Lists, Not Playlists",
-    excerpt:
-      "Tiny games to make weekends feel longer (and more yours).",
-    date: "2024-11-30",
-    cover:
-      "https://images.unsplash.com/photo-1480497490787-505ec076689f?q=80&w=1200&auto=format&fit=crop",
-    tags: ["fun", "habits"],
-  },
-];
+import { POSTS } from "@/data/posts";
 
 const fmt = (d: string) =>
-  new Date(d).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  new Date(d).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
 export default function BlogPage() {
+  useEffect(() => {
+    document.title = "Blog — Stories at Sunset";
+  }, []);
+
   return (
     <main className="relative min-h-screen">
       <BackgroundVideoStack src={GENTLERAIN_BG} />
@@ -80,6 +47,7 @@ export default function BlogPage() {
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
               </div>
+
               <div className="p-5">
                 <p className="text-xs uppercase tracking-widest text-white/70">{fmt(p.date)}</p>
                 <h2 className="mt-1 font-heading text-xl leading-snug text-white">{p.title}</h2>
@@ -88,7 +56,10 @@ export default function BlogPage() {
                 {p.tags?.length ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {p.tags.map((t) => (
-                      <span key={t} className="rounded-full border border-white/20 px-2 py-0.5 text-xs text-white/80">
+                      <span
+                        key={t}
+                        className="rounded-full border border-white/20 px-2 py-0.5 text-xs text-white/80"
+                      >
                         {t}
                       </span>
                     ))}

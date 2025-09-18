@@ -82,7 +82,7 @@ export default function SingleBlog() {
   const html = mdToHtml(post.body);
 
   return (
-    <main className="relative min-h-screen">
+    <main id="top" className="relative min-h-screen">
       {/* Background video (Gentlerain vibe) */}
       <BackgroundVideoStack src={GENTLERAIN_BG} />
       <div
