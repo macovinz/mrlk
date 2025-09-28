@@ -44,27 +44,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* -------------------------------------------------
-   Hero palette / background
-------------------------------------------------- */
-.bg-cream-sunset{
-  background: linear-gradient(180deg, #FFF5E8 0%, #FFE9D1 60%, #FDE3C4 100%);
-}
-
-/* Animated sunset overlay for hero */
-.sunset-anim{
-  background:
-    radial-gradient(120% 70% at 50% 0%, rgba(255,149,99,.25), rgba(255,240,225,0) 60%),
-    radial-gradient(80% 50% at 50% 100%, rgba(255,211,164,.45), rgba(255,240,225,0) 60%),
-    linear-gradient(180deg, #FFF5E8 0%, #FFE9D1 60%, #FDE3C4 100%);
-  animation: sunsetDrift 12s ease-in-out infinite alternate;
-  mix-blend-mode: multiply;
-  opacity: .9;
-}
-@keyframes sunsetDrift{
-  0%   { transform: translateY(0) }
-  100% { transform: translateY(-14px) }
-}
 
 /* -------------------------------------------------
    Reveal on scroll (Belarosa-like)
