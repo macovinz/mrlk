@@ -112,7 +112,7 @@ export default function SingleBlog() {
         </nav>
 
         {/* Card: light background for readability */}
-        <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
+        <article className="overflow-hidden rounded-3xl border border-white/15 bg-white/10 backdrop-blur-md text-white">
           {/* Cover */}
           {cover ? (
             <div className="relative">
@@ -127,39 +127,39 @@ export default function SingleBlog() {
           ) : null}
 
           {/* Text */}
-          <div className="p-6 sm:p-10">
-            <header className="mb-5">
-              <p className="text-xs uppercase tracking-widest text-slate-500">
-                {fmtDate(post.date)} • {rt} min read
-              </p>
-              <h1 className="mt-2 font-heading text-3xl sm:text-4xl leading-tight text-slate-900">
-                {title}
-              </h1>
-            </header>
+         <div className="p-6 sm:p-10">
+    <header className="mb-5">
+      <p className="text-xs uppercase tracking-widest text-white/70">
+        {fmtDate(post.date)} • {rt} min read
+      </p>
+      <h1 className="mt-2 font-heading text-3xl sm:text-4xl leading-tight text-white">
+        {title}
+      </h1>
+    </header>
 
-            {/* Body from WP (already HTML) */}
-            <div
-              className="prose prose-slate max-w-none"
-              dangerouslySetInnerHTML={{ __html: contentHtml }}
-            />
+    {/* Body from WP */}
+    <div
+      className="prose prose-invert max-w-none"
+      dangerouslySetInnerHTML={{ __html: contentHtml }}
+    />
 
             {/* Footer actions */}
             <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link
-                to="/blog"
-                className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-800 hover:bg-slate-50"
-              >
-                ← Back to all posts
-              </Link>
-              <a
-                href="#top"
-                className="rounded-full bg-amber-500 px-4 py-2 text-sm text-white hover:brightness-105"
-              >
-                Top
-              </a>
-            </div>
-          </div>
-        </article>
+      <Link
+        to="/blog"
+        className="rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20"
+      >
+        ← Back to all posts
+      </Link>
+      <a
+        href="#top"
+        className="rounded-full bg-amber-500 px-4 py-2 text-sm text-white hover:brightness-105"
+      >
+        Top
+      </a>
+    </div>
+  </div>
+</article>
       </div>
     </main>
   );
