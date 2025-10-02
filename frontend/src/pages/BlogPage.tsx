@@ -1,10 +1,9 @@
 // src/pages/BlogPage.tsx
 import { useEffect, useState } from "react";
-import BackgroundVideoStack from "@/components/BackgroundVideoStack";
-import { GENTLERAIN_BG } from "@/constants/gentlerain";
 import { Link } from "react-router-dom";
 import { WP_API_BASE, imageFromEmbedded, stripHtml, fmtDate } from "@/lib/wp";
 import type { WpPost } from "@/lib/wp";
+import BackgroundGradientAnimation from "@/components/BackgroundGradientAnimation";
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<WpPost[]>([]);
@@ -31,7 +30,7 @@ export default function BlogPage() {
 
   return (
     <main className="relative min-h-screen">
-      <BackgroundVideoStack src={GENTLERAIN_BG} />
+      <BackgroundGradientAnimation/>
 
       <section className="relative z-10 mx-auto max-w-7xl px-6 pt-28 pb-24">
         <header className="mb-10 text-center">

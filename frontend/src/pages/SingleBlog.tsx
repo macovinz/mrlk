@@ -1,8 +1,7 @@
 // src/pages/SingleBlog.tsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import BackgroundVideoStack from "@/components/BackgroundVideoStack";
-import { GENTLERAIN_BG } from "@/constants/gentlerain";
+import BackgroundGradientAnimation from "@/components/BackgroundGradientAnimation";
 import { WP_API_BASE, imageFromEmbedded, stripHtml, fmtDate } from "@/lib/wp";
 import type { WpPost } from "@/lib/wp";
 
@@ -48,7 +47,7 @@ export default function SingleBlog() {
   if (loading) {
     return (
       <main className="relative min-h-screen text-white">
-        <BackgroundVideoStack src={GENTLERAIN_BG} />
+        <BackgroundGradientAnimation/>
         <div className="mx-auto max-w-3xl px-6 pt-32 pb-20">
           <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-8 text-center">
             Loading…
@@ -61,7 +60,7 @@ export default function SingleBlog() {
   if (err || !post) {
     return (
       <main className="relative min-h-screen text-white">
-        <BackgroundVideoStack src={GENTLERAIN_BG} />
+        <BackgroundGradientAnimation/>
         <div className="mx-auto max-w-3xl px-6 pt-32 pb-20">
           <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-8">
             <h1 className="text-2xl font-heading">Post not found</h1>
@@ -88,7 +87,7 @@ export default function SingleBlog() {
   return (
     <main className="relative min-h-screen">
       {/* Background video (Gentlerain vibe) */}
-      <BackgroundVideoStack src={GENTLERAIN_BG} />
+      <BackgroundGradientAnimation/>
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 -z-10 opacity-[0.9]"
