@@ -1,8 +1,7 @@
 // src/pages/Podcast.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import BackgroundVideoStack from "@/components/BackgroundVideoStack";
-import { GENTLERAIN_BG } from "@/constants/gentlerain";
+import BackgroundGradientAnimation from "@/components/BackgroundGradientAnimation";
 
 type Episode = {
   id: string;
@@ -121,7 +120,19 @@ export default function PodcastPage() {
   return (
     <main className="relative min-h-screen text-white">
       {/* gentle animated background */}
-      <BackgroundVideoStack src={GENTLERAIN_BG} tintGradient="from-slate-900/10 via-slate-900/25 to-slate-950/45" />
+      <BackgroundGradientAnimation
+              interactive={false}
+              containerClassName="-z-20"
+              flipVertical             // <-- NEW
+              gradientBackgroundStart="rgba(243, 143, 21, 1)"
+              gradientBackgroundEnd="rgba(128, 166, 248, 1)"
+              firstColor="255, 169, 112"
+              secondColor="255, 204, 160"
+              thirdColor="206, 203, 226"
+              fourthColor="166, 186, 220"
+              fifthColor="255, 235, 205"
+              pointerColor="142, 161, 199"
+            />
 
       {/* content */}
       <div className="relative z-10 mx-auto max-w-7xl px-6 pt-28 pb-20">

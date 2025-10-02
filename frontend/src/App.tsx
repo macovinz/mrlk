@@ -5,6 +5,7 @@ import PodcastPage from "@/pages/Podcast";
 import SinglePodcast from "@/pages/SinglePodcast";
 import BlogPage from "@/pages/BlogPage";
 import NewsArticle from "@/pages/SingleBlog";
+//import Affirmations from "./pages/Affirmations";
 
 
 export default function App() {
