@@ -6,16 +6,13 @@ import AnimatedGradientBackground from "./AnimatedGradientBackground";
 export default function Hero() {
   return (
     <section id="hero" className="relative min-h-screen w-full overflow-hidden text-white">
-      {/* breathing sunset background */}
+      {/* breathing hero gradient (keeps your colors) */}
       <AnimatedGradientBackground
-        // keep your palette exactly
+        Breathing
+        startingGap={125}
         gradientColors={["#ef6a2f", "#ff934d", "#ffd2a8", "#cfcbe2", "#8ea1c7"]}
         gradientStops={[0, 25, 45, 70, 100]}
-        startingGap={120}
-        breathingRange={4}
-        animationSpeed={0.04}
-        center="50% 120%"
-        Breathing
+        
       />
 
       {/* grain */}
@@ -28,7 +25,6 @@ export default function Hero() {
           mixBlendMode: "soft-light",
         }}
       />
-
       {/* low sun glow */}
       <div
         aria-hidden
@@ -39,7 +35,7 @@ export default function Hero() {
         }}
       />
 
-      {/* CENTERED CONTENT (unchanged) */}
+      {/* centered content */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 min-h-screen flex items-center justify-center text-center">
         <div>
           <motion.h1
@@ -95,6 +91,7 @@ export default function Hero() {
 
       {/* Blue confetti appears on hero only */}
       <ConfettiOnScroll />
+      
     </section>
   );
 }

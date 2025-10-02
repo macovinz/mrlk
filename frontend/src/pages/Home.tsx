@@ -9,10 +9,12 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <section id="stories">
+      <section id="stories" className="relative z-10">
         <GentleScroller />
       </section>
-      <GlassCTA />
+      <div className="relative z-10">
+        <GlassCTA />
+      </div>
     </>
   );
 }
