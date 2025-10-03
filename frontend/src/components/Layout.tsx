@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import BackgroundGradientAnimation from "@/components/BackgroundGradientAnimation";
+import Footer from "@/components/Footer";
 
 function useScrollEasing() {
   useEffect(() => {
@@ -31,10 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useRevealOnScroll();
   return (
     <div id="app-root" className="relative min-h-screen">
-      {/* Global animated background (same sunset palette as Hero) */}
       <BackgroundGradientAnimation interactive={false} containerClassName="-z-10" />
-
-      {/* Optional: ultra-soft top blend so the hero’s breathing layer melts into the global bg */}
       <div
         aria-hidden
         className="pointer-events-none fixed top-[100vh] left-0 right-0 h-24 -z-10"
@@ -47,6 +45,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <Header />
       <div className="relative z-10">{children}</div>
+      <Footer/>
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.18]"
         style={{
-          backgroundImage: "radial-gradient(rgba(255,255,255,0.8)_1px,transparent_1px)",
+          backgroundImage: "radial-gradient(rgba(80, 70, 70, 0.8)_1px,transparent_1px)",
           backgroundSize: "3px 3px",
           mixBlendMode: "soft-light",
         }}

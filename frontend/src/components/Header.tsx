@@ -12,7 +12,7 @@ export default function Header() {
           </a>
 
           <div className="flex items-center gap-5 text-sm">
-            <a className="hover:text-white/80 transition-colors" href="/story">Story</a>
+            <a className="hover:text-white/80 transition-colors" href="/affirmation">Feeling down?</a>
             <a className="hover:text-white/80 transition-colors" href="/gift">Gift</a>
             <a className="hover:text-white/80 transition-colors" href="/podcast">Podcast</a>
             <a className="hover:text-white/80 transition-colors" href="/blog">Blog</a>

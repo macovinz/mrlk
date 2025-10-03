@@ -1,3 +1,4 @@
+// src/components/AnimatedGradientBackground.tsx
 import { motion } from "framer-motion";
 import React, { useEffect, useRef } from "react";
 
@@ -12,18 +13,21 @@ interface AnimatedGradientBackgroundProps {
   containerClassName?: string;
   /** Gradient center, e.g. "50% 120%" to match your hero */
   center?: string;
+  /** EXTRA: adds to the vertical radius, used to make the gradient appear to 'rise' on scroll */
+  topOffset?: number;            // %
 }
 
 const AnimatedGradientBackground: React.FC<AnimatedGradientBackgroundProps> = ({
   startingGap = 120,
   Breathing = true,
-  gradientColors = ["#ef6a2f","#ff934d","#ffd2a8","#cfcbe2","#8ea1c7"],
+  gradientColors = ["#ef6a2f", "#ff934d", "#ffd2a8", "#cfcbe2", "#8ea1c7"],
   gradientStops  = [0, 25, 45, 70, 100],
   animationSpeed = 0.09,
   breathingRange = 7,
   containerStyle = {},
   containerClassName = "",
-  center = "50% 120%",   // matches your current hero center
+  center = "50% 120%",
+  topOffset = 0,
 }) => {
   if (gradientColors.length !== gradientStops.length) {
     throw new Error(
@@ -44,7 +48,6 @@ const AnimatedGradientBackground: React.FC<AnimatedGradientBackgroundProps> = ({
     const reduce = media?.matches;
 
     const tick = () => {
-      // Respect reduced motion
       const active = Breathing && !reduce;
 
       if (active) {
@@ -57,7 +60,11 @@ const AnimatedGradientBackground: React.FC<AnimatedGradientBackgroundProps> = ({
         .map((stop, i) => `${gradientColors[i]} ${stop}%`)
         .join(", ");
 
-      const gradient = `radial-gradient(${size}% ${size}% at ${center}, ${stops})`;
+      // vertical radius gets a little boost from scroll (topOffset)
+      const hRadius = size;
+      const vRadius = size + topOffset;
+
+      const gradient = `radial-gradient(${hRadius}% ${vRadius}% at ${center}, ${stops})`;
 
       if (containerRef.current) {
         containerRef.current.style.background = gradient;
@@ -68,7 +75,16 @@ const AnimatedGradientBackground: React.FC<AnimatedGradientBackgroundProps> = ({
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [startingGap, Breathing, gradientColors, gradientStops, animationSpeed, breathingRange, center]);
+  }, [
+    startingGap,
+    Breathing,
+    gradientColors,
+    gradientStops,
+    animationSpeed,
+    breathingRange,
+    center,
+    topOffset, // respond to changes from scroll
+  ]);
 
   return (
     <motion.div
