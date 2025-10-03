@@ -22,8 +22,6 @@ const config: Config = {
       },
       fontFamily: {
         // Body text
-        sans: ['"Josefin Sans"', ...fontFamily.sans],
-        body: ['"Josefin Sans"', ...fontFamily.sans],
 
         // Headings / display
         heading: ['Poppins', ...fontFamily.sans],

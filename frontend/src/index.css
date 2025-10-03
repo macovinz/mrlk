@@ -10,9 +10,7 @@
 ------------------------------------------------- */
 :root{
   --font-display: 'Poppins', sans-serif;
-  --font-body: 'Inter', sans-serif;
---font-quiz-display: "Manrope", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-quiz-sans: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-body: 'Poppins', sans-serif;
   /* requested hex for hero heading */
   --hero-blue: #091485;
 

@@ -5,7 +5,7 @@ import PodcastPage from "@/pages/Podcast";
 import SinglePodcast from "@/pages/SinglePodcast";
 import BlogPage from "@/pages/BlogPage";
 import NewsArticle from "@/pages/SingleBlog";
-import Affirmations from "./pages/Affirmations";
+import Mood from "./pages/Affirmations";
 
 
 export default function App() {
@@ -14,7 +14,7 @@ export default function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/affirmation" element={<Affirmations/>}/>
+            <Route path="/mood" element={<Mood/>}/>
             <Route path="/podcast" element={<PodcastPage />} />
             <Route path="/podcast/:slug" element={<SinglePodcast />} />
             <Route path="/blog" element={<BlogPage />} />

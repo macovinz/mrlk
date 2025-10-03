@@ -1,5 +1,5 @@
 // src/components/MissyFeelingsPage.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Waves, Zap, CloudRain, CloudFog, SquareSlash, CircleSlash,
@@ -103,11 +103,7 @@ export default function MissyFeelingsPage() {
     } catch {}
   };
 
-  const headline = useMemo(() => {
-    if (!selected) return "Missy, how are you feeling?";
-    const m = MOODS.find(m => m.key === selected);
-    return m ? `Feeling ${m.label.toLowerCase()}?` : "How are you feeling?";
-  }, [selected]);
+  const headline = "How are you feeling, Missy?";
 
   return (
     <section
@@ -125,7 +121,7 @@ export default function MissyFeelingsPage() {
             <span className="text-sm md:text-base font-semibold tracking-wide">Back</span>
           </a>
           <span className="hidden md:block text-xs md:text-sm font-semibold tracking-wide opacity-80">
-            Just checking in, Missy.
+            Just checking in, Cabbage.
           </span>
           <a href="/" className="btn btn-outline btn-sm inline-flex items-center gap-2">
             <span>Quit</span>
@@ -148,28 +144,38 @@ export default function MissyFeelingsPage() {
           A quick, gentle check-in. Choose what fits right now.
         </motion.p>
 
-        {/* Mood grid */}
-        <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
-          {MOODS.map((m) => (
-            <button
-              key={m.key}
-              className={`btn btn-outline ${selected === m.key ? "ring-2 ring-white" : ""}`}
-              onClick={() => onPickMood(m.key)}
-              aria-pressed={selected === m.key}
-              title={m.label}
-            >
-              <m.Icon className="mr-2 h-6 w-6 md:h-7 md:w-7" aria-hidden />
-              <span className="font-semibold tracking-wide">{m.label}</span>
-            </button>
-          ))}
+        {/* Mood grid — icon-only buttons with tiny labels */}
+        <div className="mt-10 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+          {MOODS.map((m) => {
+            const active = selected === m.key;
+            return (
+              <div key={m.key} className="flex flex-col items-center">
+                <button
+                  className={[
+                    "grid place-items-center h-16 w-16 rounded-2xl border backdrop-blur-md transition",
+                    active
+                      ? "border-white/60 bg-white/20 ring-2 ring-white/70"
+                      : "border-white/25 bg-white/10 hover:bg-white/15"
+                  ].join(" ")}
+                  aria-pressed={active}
+                  aria-label={m.label}
+                  title={m.label}
+                  onClick={() => onPickMood(m.key)}
+                >
+                  <m.Icon className="h-7 w-7 text-white" aria-hidden />
+                </button>
+                <span className="mt-2 text-xs text-white/85 text-center leading-4">{m.label}</span>
+              </div>
+            );
+          })}
         </div>
       </main>
 
-      {/* Haiku Modal (only after a selection) */}
+      {/* Haiku Modal */}
       <AnimatePresence>
         {showHaiku && haiku && selected && selected !== "unknown" && (
           <HaikuModal
-            haiku={haiku}                       // '/' → line breaks handled inside
+            haiku={haiku}
             onAnother={() => selected && setHaiku(pickRandom(HAIKUS[selected], haiku))}
             onCopy={async () => { try { await navigator.clipboard.writeText(haiku); } catch {} }}
             onClose={() => setShowHaiku(false)}
