@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import Header from "@/components/Header";
 import BackgroundGradientAnimation from "@/components/BackgroundGradientAnimation";
 import Footer from "@/components/Footer";
+import SmoothScroll from "./SmoothScroll";
 
 function useScrollEasing() {
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <Header />
       <div className="relative z-10">{children}</div>
+      <SmoothScroll/>
       <Footer/>
     </div>
   );

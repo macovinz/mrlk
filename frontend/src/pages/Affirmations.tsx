@@ -2,43 +2,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Waves,
-  Zap,
-  CloudRain,
-  CloudFog,
-  SquareSlash,
-  CircleSlash,
-  Flag,
-  Feather,
-  Sparkles,
-  Sun,
-  Copy,
-  RefreshCw,
-  ArrowLeft,
-  X,
+  Waves, Zap, CloudRain, CloudFog, SquareSlash, CircleSlash,
+  Flag, Feather, Sparkles, Sun, ArrowLeft, X, HelpCircle
 } from "lucide-react";
 import { HAIKUS } from "@/data/missyHaikus";
 import type { MoodKey } from "@/data/missyHaikus";
+import HaikuModal from "@/components/HaikuModal";
+import BreatheOverlay, { type PatternKey } from "@/components/BreatheOverlay";
 
-interface MoodOption {
-  key: MoodKey;
-  label: string;
-  Icon: React.ElementType;
-}
-
-const MOODS: MoodOption[] = [
-  { key: "overwhelmed", label: "Overwhelmed", Icon: Waves },
-  { key: "stressed", label: "Stressed", Icon: Zap },
-  { key: "sad", label: "Sad", Icon: CloudRain },
-  { key: "miserable", label: "Miserable", Icon: CloudFog },
-  { key: "frustrated", label: "Frustrated", Icon: SquareSlash },
-  { key: "stuck", label: "Stuck", Icon: CircleSlash },
-  { key: "wantToQuit", label: "Want to Quit", Icon: Flag },
-  { key: "unappreciated", label: "Unappreciated", Icon: Feather },
-  { key: "lowEsteem", label: "Low Self‑Esteem", Icon: Sparkles },
-  { key: "okay", label: "A Bit Okay", Icon: Sun },
-];
-
+/* ----------------------------- utilities ----------------------------- */
 const pickRandom = (arr: string[], not?: string) => {
   if (!arr.length) return "";
   if (arr.length === 1) return arr[0];
@@ -56,43 +28,78 @@ const moodFromQuery = (): MoodKey | null => {
   try {
     const params = new URLSearchParams(window.location.search);
     const q = (params.get("mood") || "").trim();
-    const found = MOODS.find(m => m.key.toLowerCase() === q.toLowerCase());
-    return found ? found.key : null;
+    return q as MoodKey;
   } catch {
     return null;
   }
 };
 
-export default function MissyFeelingsPage() {
-  const [selected, setSelected] = useState<MoodKey | null>(null);
-  const [haiku, setHaiku] = useState<string>("");
+/* --------------------------- local components --------------------------- */
+function Letters({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
+  return (
+    <span className={className} aria-label={text}>
+      {text.split("").map((ch, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: delay + i * 0.085, duration: 0.28, ease: [0.2, 0.65, 0.3, 1] }}
+          className="inline-block will-change-transform"
+        >
+          {ch === " " ? "\u00A0" : ch}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
 
+/* --------------------------------- page --------------------------------- */
+type MoodOption = { key: MoodKey | "unknown"; label: string; Icon: React.ElementType; };
+
+const MOODS: MoodOption[] = [
+  { key: "overwhelmed", label: "Overwhelmed", Icon: Waves },
+  { key: "stressed", label: "Stressed", Icon: Zap },
+  { key: "sad", label: "Sad", Icon: CloudRain },
+  { key: "miserable", label: "Miserable", Icon: CloudFog },
+  { key: "frustrated", label: "Frustrated", Icon: SquareSlash },
+  { key: "stuck", label: "Stuck", Icon: CircleSlash },
+  { key: "wantToQuit", label: "Want to Quit", Icon: Flag },
+  { key: "unappreciated", label: "Unappreciated", Icon: Feather },
+  { key: "lowEsteem", label: "Low Self-Esteem", Icon: Sparkles },
+  { key: "okay", label: "A Bit Okay", Icon: Sun },
+  { key: "unknown", label: "I don’t know.", Icon: HelpCircle },
+];
+
+export default function MissyFeelingsPage() {
+  const [selected, setSelected] = useState<MoodKey | "unknown" | null>(null);
+  const [haiku, setHaiku] = useState<string>("");
+  const [showHaiku, setShowHaiku] = useState(false);
+  const [showBreathing, setShowBreathing] = useState(false);
+  const [patternKey, setPatternKey] = useState<PatternKey>("calm44");
+
+  // Initialize from query/localStorage (but don't auto-open anything)
   useEffect(() => {
     const qMood = moodFromQuery();
     const stored = (localStorage.getItem("missy:lastMood") || "") as MoodKey;
     const initial = (qMood || stored) as MoodKey | null;
-    if (initial && HAIKUS[initial]) {
-      setSelected(initial);
-      setHaiku(pickRandom(HAIKUS[initial]));
-    }
+    if (initial && HAIKUS[initial]) setSelected(initial);
   }, []);
 
-  const onPickMood = (mood: MoodKey) => {
+  const onPickMood = (mood: MoodKey | "unknown") => {
     setSelected(mood);
+    if (mood === "unknown") {
+      setShowBreathing(true);
+      setShowHaiku(false);
+      return;
+    }
     const next = pickRandom(HAIKUS[mood], haiku);
     setHaiku(next);
+    setShowHaiku(true);
     try {
       localStorage.setItem("missy:lastMood", mood);
       const url = new URL(window.location.href);
       url.searchParams.set("mood", mood);
       window.history.replaceState({}, "", url);
-    } catch {}
-  };
-
-  const onCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(haiku);
-      alert("Haiku copied ✨");
     } catch {}
   };
 
@@ -103,41 +110,45 @@ export default function MissyFeelingsPage() {
   }, [selected]);
 
   return (
-    <section className="relative">
-      {/* Header — minimal quiz controls; relies on global bg */}
-      <header className="relative z-10 text-hero-blue">
-        <div className="max-w-6xl mx-auto px-6 pt-5 md:pt-8 flex items-center justify-between">
+    <section
+      className="relative min-h-screen pt-10"
+      style={{
+        /* evening gradient */
+        background: "linear-gradient(to bottom, #0b1d3a 0%, #173a6d 25%, #a0627a 50%, #ff784e 75%, #2c0a00 100%)",
+      }}
+    >
+      {/* top nav row */}
+      <header className="relative z-10 text-white pt-10">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-5 md:pt-8">
           <a href="/" className="inline-flex items-center gap-2 hover:opacity-90">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
             <span className="text-sm md:text-base font-semibold tracking-wide">Back</span>
           </a>
-          <span className="hidden md:block text-xs md:text-sm font-semibold tracking-wide">Missy check‑in</span>
+          <span className="hidden md:block text-xs md:text-sm font-semibold tracking-wide opacity-80">
+            Just checking in, Missy.
+          </span>
           <a href="/" className="btn btn-outline btn-sm inline-flex items-center gap-2">
             <span>Quit</span>
-            <X className="w-3.5 h-3.5" />
+            <X className="h-3.5 w-3.5" />
           </a>
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-6xl px-6 pb-20 md:pb-28 text-hero-blue">
-        <motion.h1
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="mt-10 md:mt-16 text-5xl md:text-7xl font-display font-semibold tracking-tight"
-        >
-          {headline}
-        </motion.h1>
+      {/* main content */}
+      <main className="relative mx-auto max-w-6xl px-6 pt-28 md:pt-32 pb-20 md:pb-28 text-white">
+        <h1 className="text-pretty text-5xl md:text-7xl font-display font-semibold tracking-tight">
+          <Letters text={headline} />
+        </h1>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-          className="mt-3 text-lg text-ink md:text-2xl max-w-3xl"
+          transition={{ delay: 0.25, duration: 0.5 }}
+          className="mt-3 max-w-3xl text-lg md:text-2xl text-white/90"
         >
-          A quick, gentle check‑in. Choose what fits right now; I’ll answer with a calming haiku.
+          A quick, gentle check-in. Choose what fits right now.
         </motion.p>
 
-        {/* Mood grid — uses your button system */}
+        {/* Mood grid */}
         <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
           {MOODS.map((m) => (
             <button
@@ -147,53 +158,35 @@ export default function MissyFeelingsPage() {
               aria-pressed={selected === m.key}
               title={m.label}
             >
-              <m.Icon className="w-6 h-6 md:w-7 md:h-7 mr-2" aria-hidden />
+              <m.Icon className="mr-2 h-6 w-6 md:h-7 md:w-7" aria-hidden />
               <span className="font-semibold tracking-wide">{m.label}</span>
             </button>
           ))}
         </div>
-
-        {/* Haiku reveal */}
-        <div className="mt-10 min-h-[9rem]" aria-live="polite" aria-atomic="true">
-          <AnimatePresence mode="wait">
-            {haiku ? (
-              <motion.div
-                key={haiku}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.22 }}
-                className="rounded-2xl p-6 md:p-8 border border-white/20"
-              >
-                <p className="whitespace-pre-line text-xl md:text-2xl leading-relaxed">
-                  {haiku}
-                </p>
-                <div className="mt-6 flex flex-wrap items-center gap-2">
-                  <button className="btn btn-outline" onClick={() => selected && onPickMood(selected)}>
-                    <RefreshCw className="w-4 h-4 mr-2" /> Another
-                  </button>
-                  <button className="btn btn-outline" onClick={onCopy}>
-                    <Copy className="w-4 h-4 mr-2" /> Copy
-                  </button>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.p
-                key="prompt"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-lg md:text-xl"
-              >
-                Pick a feeling above to reveal a poem.
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="mt-8 text-xs opacity-80">
-          Tip: link directly to a mood, e.g. <code className="px-1.5 py-0.5 rounded bg-white/20">?mood=stressed</code>
-        </div>
       </main>
+
+      {/* Haiku Modal (only after a selection) */}
+      <AnimatePresence>
+        {showHaiku && haiku && selected && selected !== "unknown" && (
+          <HaikuModal
+            haiku={haiku}                       // '/' → line breaks handled inside
+            onAnother={() => selected && setHaiku(pickRandom(HAIKUS[selected], haiku))}
+            onCopy={async () => { try { await navigator.clipboard.writeText(haiku); } catch {} }}
+            onClose={() => setShowHaiku(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Breathing overlay */}
+      <AnimatePresence>
+        {showBreathing && (
+          <BreatheOverlay
+            patternKey={patternKey}
+            onPattern={(k) => setPatternKey(k)}
+            onClose={() => setShowBreathing(false)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
