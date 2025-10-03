@@ -35,7 +35,6 @@ function Letters({
 export default function HaikuModal({
   haiku,
   onAnother,
-  onCopy,
   onClose,
 }: {
   haiku: string;
@@ -115,12 +114,7 @@ export default function HaikuModal({
             >
               Another
             </button>
-            <button
-              onClick={onCopy}
-              className="rounded-full border border-white/40 bg-white/15 px-5 py-2.5 text-sm hover:bg-white/20 backdrop-blur-md"
-            >
-              Copy
-            </button>
+            
           </div>
         </motion.div>
       </motion.div>

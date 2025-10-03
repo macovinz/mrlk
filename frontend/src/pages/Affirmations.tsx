@@ -77,7 +77,8 @@ export default function MissyFeelingsPage() {
   const [showBreathing, setShowBreathing] = useState(false);
   const [patternKey, setPatternKey] = useState<PatternKey>("calm44");
 
-  // Initialize from query/localStorage (but don't auto-open anything)
+  useEffect(() => { document.title = "Listen to your body — Stories at Sunset"; }, []);
+
   useEffect(() => {
     const qMood = moodFromQuery();
     const stored = (localStorage.getItem("missy:lastMood") || "") as MoodKey;
