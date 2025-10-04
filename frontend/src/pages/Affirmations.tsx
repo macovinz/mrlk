@@ -34,8 +34,6 @@ const moodFromQuery = (): MoodKey | null => {
   }
 };
 
-/* --------------------------- local components --------------------------- */
-/* --------------------------- local components --------------------------- */
 // Word-by-word, letter-by-letter reveal
 function WordsReveal({
   text,
@@ -87,10 +85,10 @@ function WordsReveal({
 type MoodOption = { key: MoodKey | "unknown"; label: string; Icon: React.ElementType; };
 
 const MOODS: MoodOption[] = [
+  { key: "unknown", label: "I don’t know.", Icon: HelpCircle },
   { key: "overwhelmed", label: "Overwhelmed", Icon: Waves },
   { key: "stressed", label: "Stressed", Icon: Zap },
   { key: "sad", label: "Sad", Icon: CloudRain },
-  { key: "unknown", label: "I don’t know.", Icon: HelpCircle },
   { key: "miserable", label: "Miserable", Icon: CloudFog },
   { key: "frustrated", label: "Frustrated", Icon: SquareSlash },
   { key: "stuck", label: "Stuck", Icon: CircleSlash },
@@ -151,7 +149,7 @@ export default function MissyFeelingsPage() {
     <p className="text-xs md:text-sm font-semibold tracking-wide">
       Just checking in, Cabbage.
     </p>
-    <a href="/" className="btn btn-outline btn-sm inline-flex items-center gap-2">
+    <a href="/gift" className="btn btn-outline btn-sm inline-flex items-center gap-2">
       <span>Quit</span>
       <X className="h-3.5 w-3.5" />
     </a>
