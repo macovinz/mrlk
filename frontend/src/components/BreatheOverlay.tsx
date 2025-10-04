@@ -147,9 +147,14 @@ export default function BreatheOverlay({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -8, scale: 0.98 }}
         >
+          <div className="flex flex-col items-center text-center text-white"></div>
           <h2 className="text-center text-2xl sm:text-3xl font-display font-semibold text-white">
             Breathe, baby.
           </h2>
+          <p className="mt-4 max-w-md text-center text-sm md:textm text-white/80 leading-relaxed">
+    As you breathe, let go of any tension in your shoulders, jaw, and hands.  
+    Relax your body so the calm can flow through.
+  </p>
 
           {/* pattern chips */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
@@ -213,8 +218,10 @@ export default function BreatheOverlay({
           </div>
 
           <p className="mt-5 max-w-md text-center text-sm text-white/85">{benefitCopy}</p>
+          <p className="mt-5 max-w-md text-center text-sm text-white/85">I love you.</p>
 
-          <div className="mt-6 flex justify-center">
+          <div className="mt-5 flex justify-center">
+            
             <button onClick={onClose} className="btn btn-outline">
               Back to the question
             </button>

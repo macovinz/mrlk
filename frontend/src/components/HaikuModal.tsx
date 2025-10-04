@@ -52,7 +52,7 @@ export default function HaikuModal({
     <AnimatePresence>
       <motion.div
         key="haiku-overlay"
-        className="fixed inset-0 z-[90] grid place-items-center p-4 sm:p-6"
+        className="fixed inset-0 z-[90] grid place-items-center p-10 sm:p-6"
         role="dialog"
         aria-modal="true"
         initial={{ opacity: 0 }}
@@ -79,7 +79,7 @@ export default function HaikuModal({
             rounded-2xl border border-white/25
             bg-white/12 backdrop-blur-xl
             shadow-[0_20px_80px_rgba(0,0,0,0.35)]
-            px-6 sm:px-8 py-6 sm:py-7
+            px-6 sm:px-12 py-6 sm:py-7
             text-white
           "
           style={{ width: "max-content", maxWidth: "min(92vw, 36rem)" }}
@@ -100,7 +100,7 @@ export default function HaikuModal({
                 <Letters
                   text={line}
                   delay={i * 0.2}
-                  className="text-xl sm:text-2xl leading-relaxed"
+                  className="text-m sm:text-1xl leading-relaxed"
                 />
               </div>
             ))}

@@ -35,23 +35,53 @@ const moodFromQuery = (): MoodKey | null => {
 };
 
 /* --------------------------- local components --------------------------- */
-function Letters({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
+/* --------------------------- local components --------------------------- */
+// Word-by-word, letter-by-letter reveal
+function WordsReveal({
+  text,
+  className = "",
+  wordDelay = 0.14,   // gap between words
+  letterDelay = 0.035 // gap between letters in a word
+}: {
+  text: string;
+  className?: string;
+  wordDelay?: number;
+  letterDelay?: number;
+}) {
+  const words = text.split(" ");
   return (
     <span className={className} aria-label={text}>
-      {text.split("").map((ch, i) => (
+      {words.map((word, wi) => (
         <motion.span
-          key={i}
-          initial={{ opacity: 0, y: 8 }}
+          key={`w-${wi}-${word}`}
+          className="inline-block align-baseline"
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: delay + i * 0.085, duration: 0.28, ease: [0.2, 0.65, 0.3, 1] }}
-          className="inline-block will-change-transform"
+          transition={{ duration: 0.4, delay: wi * wordDelay, ease: [0.2, 0.65, 0.3, 1] }}
+          style={{ marginRight: "0.25ch" }}
         >
-          {ch === " " ? "\u00A0" : ch}
+          {/* letters inside each word */}
+          {word.split("").map((ch, li) => (
+            <motion.span
+              key={`w-${wi}-l-${li}`}
+              className="inline-block will-change-transform"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.22,
+                delay: wi * wordDelay + li * letterDelay,
+                ease: [0.2, 0.65, 0.3, 1]
+              }}
+            >
+              {ch}
+            </motion.span>
+          ))}
         </motion.span>
       ))}
     </span>
   );
 }
+
 
 /* --------------------------------- page --------------------------------- */
 type MoodOption = { key: MoodKey | "unknown"; label: string; Icon: React.ElementType; };
@@ -60,6 +90,7 @@ const MOODS: MoodOption[] = [
   { key: "overwhelmed", label: "Overwhelmed", Icon: Waves },
   { key: "stressed", label: "Stressed", Icon: Zap },
   { key: "sad", label: "Sad", Icon: CloudRain },
+  { key: "unknown", label: "I don’t know.", Icon: HelpCircle },
   { key: "miserable", label: "Miserable", Icon: CloudFog },
   { key: "frustrated", label: "Frustrated", Icon: SquareSlash },
   { key: "stuck", label: "Stuck", Icon: CircleSlash },
@@ -67,7 +98,7 @@ const MOODS: MoodOption[] = [
   { key: "unappreciated", label: "Unappreciated", Icon: Feather },
   { key: "lowEsteem", label: "Low Self-Esteem", Icon: Sparkles },
   { key: "okay", label: "A Bit Okay", Icon: Sun },
-  { key: "unknown", label: "I don’t know.", Icon: HelpCircle },
+  
 ];
 
 export default function MissyFeelingsPage() {
@@ -115,7 +146,7 @@ export default function MissyFeelingsPage() {
       }}
     >
       {/* top nav row */}
-      <header className="relative z-10 text-white pt-10">
+      <header className="relative z-10 text-white pt-6">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-5 md:pt-8">
           <a href="/" className="inline-flex items-center gap-2 hover:opacity-90">
             <ArrowLeft className="h-5 w-5" />
@@ -134,15 +165,15 @@ export default function MissyFeelingsPage() {
       {/* main content */}
       <main className="relative mx-auto max-w-6xl px-6 pt-28 md:pt-32 pb-20 md:pb-28 text-white">
         <h1 className="text-pretty text-5xl md:text-7xl font-display font-semibold tracking-tight">
-          <Letters text={headline} />
+          <WordsReveal text={headline} />
         </h1>
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.25, duration: 0.5 }}
-          className="mt-3 max-w-3xl text-lg md:text-2xl text-white/90"
+          transition={{ delay: 0.8, duration: 0.5 }}
+          className="mt-3 max-w-4xl text-base md:text-1xl text-white/90"
         >
-          A quick, gentle check-in. Choose what fits right now.
+          I know how valuable your time is but let's do a "quickie", gentle check-in. Choose what fits right now.
         </motion.p>
 
         {/* Mood grid — icon-only buttons with tiny labels */}

@@ -13,8 +13,8 @@ export default function App() {
     <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/mood" element={<Mood/>}/>
+            <Route path="/" element={<Mood />} />
+            <Route path="/#gift" element={<Home/>}/>
             <Route path="/podcast" element={<PodcastPage />} />
             <Route path="/podcast/:slug" element={<SinglePodcast />} />
             <Route path="/blog" element={<BlogPage />} />

@@ -7,13 +7,13 @@ export default function Header() {
         
         <nav className="relative mx-auto max-w-7xl px-5 md:px-6 py-3.5 flex items-center justify-between text-white drop-shadow-md">
           <a href="/" className="font-extrabold tracking-tight">
-            <span className="font-bold text-blue-950">MRLK’s</span>
+            <span className="font-bold text-amber-600">MRLK’s</span>
             <span> UNIVERSE</span>
           </a>
 
           <div className="flex items-center gap-5 text-sm">
             <a className="hover:text-white/80 transition-colors" href="/mood">Feelings</a>
-            <a className="hover:text-white/80 transition-colors" href="/gift">Gift</a>
+            <a className="hover:text-white/80 transition-colors" href="/#gift">Gift</a>
             <a className="hover:text-white/80 transition-colors" href="/podcast">Podcast</a>
             <a className="hover:text-white/80 transition-colors" href="/blog">Blog</a>
           </div>
