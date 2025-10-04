@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Waves, Zap, CloudRain, CloudFog, SquareSlash, CircleSlash,
-  Flag, Feather, Sparkles, Sun, ArrowLeft, X, HelpCircle
+  Flag, Feather, Sparkles, Sun, X, HelpCircle
 } from "lucide-react";
 import { HAIKUS } from "@/data/missyHaikus";
 import type { MoodKey } from "@/data/missyHaikus";
@@ -146,21 +146,18 @@ export default function MissyFeelingsPage() {
       }}
     >
       {/* top nav row */}
-      <header className="relative z-10 text-white pt-6">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-5 md:pt-8">
-          <a href="/" className="inline-flex items-center gap-2 hover:opacity-90">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="text-sm md:text-base font-semibold tracking-wide">Back</span>
-          </a>
-          <span className="hidden md:block text-xs md:text-sm font-semibold tracking-wide opacity-80">
-            Just checking in, Cabbage.
-          </span>
-          <a href="/" className="btn btn-outline btn-sm inline-flex items-center gap-2">
-            <span>Quit</span>
-            <X className="h-3.5 w-3.5" />
-          </a>
-        </div>
-      </header>
+<header className="relative z-10 text-white pt-10">
+  <div className="mx-auto flex max-w-6xl items-end justify-between px-6 pt-5 md:pt-8">
+    <p className="text-xs md:text-sm font-semibold tracking-wide">
+      Just checking in, Cabbage.
+    </p>
+    <a href="/" className="btn btn-outline btn-sm inline-flex items-center gap-2">
+      <span>Quit</span>
+      <X className="h-3.5 w-3.5" />
+    </a>
+  </div>
+</header>
+
 
       {/* main content */}
       <main className="relative mx-auto max-w-6xl px-6 pt-28 md:pt-32 pb-20 md:pb-28 text-white">
